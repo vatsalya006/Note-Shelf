@@ -1896,88 +1896,832 @@
         </div>
 
       </section>
-      <section class="page" id="search">
-        <div class="page-head">
-          <div>
-            <h1>AI Semantic Search</h1>
-            <p class="sub">Search by meaning, not just keywords.</p>
-          </div>
-        </div>
-        <div class="semantic-hero"><input class="search" value="how do databases handle scaling and distribution?" />
-        </div>
-        <div class="toolbar"><button class="ghost active">All</button><button class="ghost">Notes only</button><button
-            class="ghost">PDFs only</button><button class="ghost">YouTube only</button><button class="ghost">Weak
-            topics</button></div>
-        <div class="grid">
-          <div class="result">
-            <div class="result-head">
-              <h2><span class="badge">Note</span> System Design - Load Balancing</h2><span class="badge green">96%
-                match</span>
-            </div>
-            <p>Matched ideas: horizontal scaling, distributed traffic, cache invalidation, and server pools.</p>
-            <div class="bar"><span style="width:96%"></span></div><a class="link" data-open-page="detail">Open note
-              -></a> <a class="link" style="margin-left:16px" data-open-page="chat">Ask AI about this</a>
-          </div>
-          <div class="result">
-            <div class="result-head">
-              <h2><span class="badge cyan">PDF</span> DBMS Complete Notes - Distributed DB</h2><span
-                class="badge green">89% match</span>
-            </div>
-            <p>Matched ideas: CAP theorem, eventual consistency, sharding, and replication models.</p>
-            <div class="bar"><span style="width:89%"></span></div><a class="link" data-open-page="detail">Open note
-              -></a> <a class="link" style="margin-left:16px" data-open-page="chat">Ask AI about this</a>
-          </div>
-          <div class="result">
-            <div class="result-head">
-              <h2><span class="badge red">YouTube</span> CS50 Week 5 - Data Structures</h2><span class="badge green">82%
-                match</span>
-            </div>
-            <p>Matched ideas: hash tables, lookup speed, memory layout, and data access tradeoffs.</p>
-            <div class="bar"><span style="width:82%"></span></div><a class="link" data-open-page="detail">Open note
-              -></a> <a class="link" style="margin-left:16px" data-open-page="chat">Ask AI about this</a>
-          </div>
-        </div>
-      </section>
 
-      <section class="page" id="chat">
-        <div class="chat-layout">
-          <div class="chat-main">
-            <div class="chat-top">
-              <div>
-                <h2>AI Chat</h2>
-                <p class="sub">Answers only from your saved notes</p>
-              </div><span class="badge green">47 notes indexed</span>
-            </div>
-            <div class="messages">
-              <div class="bubble user">Explain the difference between horizontal and vertical scaling from my notes
-              </div>
-              <div class="bubble ai">Based on your System Design notes, vertical scaling means adding more power to an
-                existing server. Horizontal scaling means adding more servers to distribute load. Your DBMS notes
-                connect this idea to distributed databases and sharding.<div class="sources"><span class="tag">System
-                    Design - Load Balancing</span><span class="tag">DBMS - Distributed DB</span></div>
-              </div>
-            </div>
-            <div class="composer">
-              <div class="mode-row"><button class="ghost active">Ask</button><button
-                  class="ghost">Summarize</button><button class="ghost">Compare</button><button class="ghost">Quiz
-                  me</button></div>
-              <div class="input-row"><input placeholder="Ask anything about your notes..." /><button
-                  class="primary">Send</button></div>
-            </div>
+      <section class="page" id="search">
+
+        <div class="ai-search-header">
+          <div>
+            <h1>AI Search</h1>
+            <p class="sub">
+              Search your knowledge base using natural language.
+              Get AI-powered answers from your notes.
+            </p>
           </div>
-          <aside class="chat-side">
-            <div class="section-title">Try Asking</div>
-            <div class="prompt">Summarize my DBMS notes</div>
-            <div class="prompt">What is CAP theorem?</div>
-            <div class="prompt">Compare OS scheduling algorithms</div>
-            <div class="prompt">Explain TCP vs UDP</div>
-            <div class="section-title" style="margin-top:24px">Used Sources</div>
-            <div class="chain"><span>System Design</span><span>DBMS Notes</span><span>OS Scheduling</span></div>
+
+          <div class="search-status">
+            <span class="status-dot"></span>
+            Searching 47 notes
+          </div>
+        </div>
+
+        <div class="ai-search-hero">
+
+          <div class="ai-search-content">
+
+            <h2>Ask anything from your knowledge</h2>
+
+            <div class="ai-search-input-row">
+
+              <input id="ai-search-input" class="ai-search-input" type="text"
+                placeholder="Example: Explain load balancing in distributed systems" />
+
+              <button id="ai-search-button" class="ai-search-button" type="button">
+                ✨ Search
+              </button>
+
+            </div>
+
+            <div class="quick-searches">
+
+              <span class="quick-label">Try asking:</span>
+
+              <button class="quick-search">
+                What is database normalization?
+              </button>
+
+              <button class="quick-search">
+                Explain React useEffect hook
+              </button>
+
+              <button class="quick-search">
+                How does JWT authentication work?
+              </button>
+
+              <button class="quick-search">
+                What is time complexity?
+              </button>
+
+            </div>
+
+          </div>
+
+          <div class="ai-search-visual">
+
+            <div class="ai-glow"></div>
+
+            <div class="ai-brain">
+              🧠
+            </div>
+
+            <span class="ai-node node-1"></span>
+            <span class="ai-node node-2"></span>
+            <span class="ai-node node-3"></span>
+            <span class="ai-node node-4"></span>
+
+          </div>
+
+        </div>
+
+        <div class="search-stats">
+
+          <div class="search-stat">
+
+            <div class="stat-icon purple">
+              📄
+            </div>
+
+            <div>
+              <span>Total Notes</span>
+              <strong>47</strong>
+              <small>Across all sources</small>
+            </div>
+
+          </div>
+
+
+          <div class="search-stat">
+
+            <div class="stat-icon green">
+              🔗
+            </div>
+
+            <div>
+              <span>Connections</span>
+              <strong>134</strong>
+              <small>Knowledge links</small>
+            </div>
+
+          </div>
+
+
+          <div class="search-stat">
+
+            <div class="stat-icon blue">
+              🗂️
+            </div>
+
+            <div>
+              <span>Sources</span>
+              <strong>12</strong>
+              <small>PDFs, Docs, Videos</small>
+            </div>
+
+          </div>
+
+
+          <div class="search-stat">
+
+            <div class="stat-icon yellow">
+              ✨
+            </div>
+
+            <div>
+              <span>AI Accuracy</span>
+              <strong>92%</strong>
+              <small>Relevant results</small>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="search-results-layout">
+
+
+          <!-- RESULTS -->
+          <div class="search-results-panel">
+
+            <div class="search-panel-header">
+
+              <div>
+                <h2>Top Results</h2>
+
+                <span class="results-count">
+                  6 results found
+                </span>
+              </div>
+
+            </div>
+
+            <article class="ai-result">
+
+              <div class="result-source-icon pdf-icon">
+                PDF
+              </div>
+
+              <div class="ai-result-content">
+
+                <div class="ai-result-title-row">
+
+                  <div>
+                    <h3>Load Balancing in Distributed Systems</h3>
+
+                    <span class="result-meta">
+                      DBMS_Complete_Notes.pdf • Page 45
+                    </span>
+                  </div>
+
+                  <div class="result-actions">
+
+                    <span class="score-badge">
+                      Score: 95%
+                    </span>
+
+                    <span class="source-badge">
+                      PDF
+                    </span>
+
+                  </div>
+
+                </div>
+
+                <p>
+                  Load balancing is the process of distributing network traffic
+                  across multiple servers to ensure no single server handles
+                  too much traffic.
+                </p>
+
+              </div>
+
+            </article>
+
+            <article class="ai-result">
+
+              <div class="result-source-icon doc-icon">
+                DOC
+              </div>
+
+              <div class="ai-result-content">
+
+                <div class="ai-result-title-row">
+
+                  <div>
+                    <h3>System Design - Scalability Patterns</h3>
+
+                    <span class="result-meta">
+                      System_Design_Notes.docx • Page 12
+                    </span>
+                  </div>
+
+                  <div class="result-actions">
+
+                    <span class="score-badge">
+                      Score: 89%
+                    </span>
+
+                    <span class="source-badge">
+                      Document
+                    </span>
+
+                  </div>
+
+                </div>
+
+                <p>
+                  Horizontal scaling and load balancing are key strategies for
+                  building scalable systems. Load balancers act as a reverse
+                  proxy between clients and servers.
+                </p>
+
+              </div>
+
+            </article>
+
+            <article class="ai-result">
+
+              <div class="result-source-icon youtube-icon">
+                ▶
+              </div>
+
+              <div class="ai-result-content">
+
+                <div class="ai-result-title-row">
+
+                  <div>
+                    <h3>Load Balancing Explained</h3>
+
+                    <span class="result-meta">
+                      Tech Concepts • YouTube Video • 12:34
+                    </span>
+                  </div>
+
+                  <div class="result-actions">
+
+                    <span class="score-badge">
+                      Score: 85%
+                    </span>
+
+                    <span class="source-badge">
+                      Video
+                    </span>
+
+                  </div>
+
+                </div>
+
+                <p>
+                  This video explains different types of load balancers,
+                  algorithms like round robin and least connections,
+                  and how they improve application performance.
+                </p>
+              </div>
+            </article>
+
+
+            <button class="view-results">
+              View all results →
+            </button>
+
+          </div>
+
+          <aside class="search-filters">
+
+            <div class="filter-header">
+              <h2>Filter Results</h2>
+            </div>
+
+            <div class="filter-section">
+
+              <h3>Source Type</h3>
+
+              <label class="filter-option">
+                <input type="checkbox" checked>
+                <span>PDF Documents</span>
+                <b>23</b>
+              </label>
+
+              <label class="filter-option">
+                <input type="checkbox" checked>
+                <span>Word Documents</span>
+                <b>12</b>
+              </label>
+
+              <label class="filter-option">
+                <input type="checkbox" checked>
+                <span>Text Notes</span>
+                <b>8</b>
+              </label>
+
+              <label class="filter-option">
+                <input type="checkbox" checked>
+                <span>YouTube Videos</span>
+                <b>4</b>
+              </label>
+
+              <label class="filter-option disabled">
+                <input type="checkbox">
+                <span>CSV Files</span>
+                <b>0</b>
+              </label>
+
+            </div>
+
+            <div class="filter-section">
+              <h3>Time Range</h3>
+
+              <select class="time-select">
+
+                <option>All Time</option>
+                <option>Today</option>
+                <option>This Week</option>
+                <option>This Month</option>
+
+              </select>
+            </div>
+            <div class="filter-section">
+              <h3>Relevance Score</h3>
+              <div class="relevance-control">
+                <input type="range" min="0" max="100" value="70" />
+                <span>70% and above</span>
+              </div>
+            </div>
           </aside>
         </div>
-      </section>
 
+        <div class="search-tips">
+          <div class="tips-header">
+            <span class="tips-icon">
+              💡
+            </span>
+            <h2>Search Tips</h2>
+          </div>
+
+
+          <div class="tips-grid">
+            <div class="search-tip">
+              <strong>Be specific</strong>
+              <p>
+                Use specific terms for better results.
+              </p>
+            </div>
+
+            <div class="search-tip">
+              <strong>Use natural language</strong>
+              <p>
+                Ask questions like you normally would.
+              </p>
+            </div>
+            <div class="search-tip">
+
+              <strong>Try different keywords</strong>
+              <p>
+                Different words can find different results.
+              </p>
+            </div>
+            <div class="search-tip">
+              <strong>Filter results</strong>
+              <p>
+                Use filters to narrow down your results.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="page" id="chat">
+
+        <div class="ai-chat-page">
+
+          <div class="ai-chat-header">
+
+            <div>
+              <h1>AI Chat</h1>
+              <p>Answers only from your saved notes</p>
+            </div>
+
+            <div class="notes-indexed">
+              47 notes indexed
+            </div>
+
+          </div>
+
+          <div class="chat-layout">
+
+            <div class="chat-main">
+
+              <div class="chat-messages">
+
+                <!-- USER MESSAGE -->
+
+                <div class="user-message">
+
+                  <div class="user-message-text">
+                    Explain the difference between horizontal and
+                    vertical scaling from my notes
+                  </div>
+
+                  <div class="message-time">
+                    10:32 AM ✓✓
+                  </div>
+
+                </div>
+
+                <div class="ai-response">
+
+                  <div class="ai-avatar">
+                    ✦
+                  </div>
+
+                  <div class="ai-response-card">
+
+                    <p>
+                      Based on your System Design notes, the difference
+                      between horizontal and vertical scaling is:
+                    </p>
+
+
+                    <div class="comparison-grid">
+
+                      <div class="comparison-column">
+
+                        <h3 class="purple-text">
+                          Horizontal Scaling (Scale Out)
+                        </h3>
+
+                        <ul>
+                          <li>Adding more servers to distribute load</li>
+                          <li>
+                            Increases system capacity by adding more machines
+                          </li>
+                          <li>
+                            Better fault tolerance and high availability
+                          </li>
+                          <li>
+                            More complex to manage
+                          </li>
+                          <li>
+                            Examples: Load balancer, distributed databases
+                          </li>
+                        </ul>
+
+                      </div>
+
+                      <div class="comparison-column">
+
+                        <h3 class="cyan-text">
+                          Vertical Scaling (Scale Up)
+                        </h3>
+
+                        <ul>
+                          <li>
+                            Adding more power to an existing server
+                          </li>
+                          <li>
+                            Increases capacity by upgrading CPU, RAM, etc.
+                          </li>
+                          <li>
+                            Simpler to implement
+                          </li>
+                          <li>
+                            Limited by hardware capacity
+                          </li>
+                          <li>
+                            Examples: Upgrading server specs
+                          </li>
+                        </ul>
+
+                      </div>
+
+                    </div>
+
+
+                    <p class="ai-extra-text">
+                      Your DBMS notes connect this idea to distributed
+                      databases and sharding for horizontal scaling.
+                    </p>
+
+                    <div class="answer-sources">
+
+                      <span class="source-label">
+                        Sources:
+                      </span>
+
+                      <span class="source-chip">
+                        System Design - Load Balancing
+                      </span>
+
+                      <span class="source-chip">
+                        DBMS - Distributed DB
+                      </span>
+
+                    </div>
+
+                    <div class="response-footer">
+
+                      <span>10:32 AM</span>
+
+                      <div class="response-actions">
+                        <button title="Helpful">♡</button>
+                        <button title="Not helpful">♧</button>
+                        <button title="Copy">□</button>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="chat-input-area">
+
+                <div class="chat-input-box">
+
+                  <input class="chat-input" type="text" placeholder="Ask anything about your notes..." />
+
+                  <div class="chat-input-bottom">
+
+                    <div class="input-tools">
+                      <button title="Attach">⌕</button>
+                      <button title="Image">▧</button>
+                      <button title="Voice">♩</button>
+                    </div>
+
+                    <button class="primary send-chat">
+                      ➤ Send
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <aside class="ai-chat-sidebar">
+
+
+              <div class="chat-side-card">
+
+                <div class="chat-side-title">
+                  ✦ &nbsp; TRY ASKING
+                </div>
+
+
+                <div class="side-prompt prompt">
+                  Summarize my DBMS notes
+                </div>
+
+                <div class="side-prompt prompt">
+                  What is CAP theorem?
+                </div>
+
+                <div class="side-prompt prompt">
+                  Compare OS scheduling algorithms
+                </div>
+
+                <div class="side-prompt prompt">
+                  Explain TCP vs UDP
+                </div>
+
+              </div>
+
+              <div class="chat-side-card">
+
+                <div class="chat-side-title">
+                  ▣ &nbsp; USED SOURCES
+                </div>
+
+
+                <div class="used-source">
+                  <span class="source-dot"></span>
+                  <span>System Design</span>
+                  <strong>18</strong>
+                </div>
+
+
+                <div class="used-source">
+                  <span class="source-dot"></span>
+                  <span>DBMS Notes</span>
+                  <strong>12</strong>
+                </div>
+
+
+                <div class="used-source">
+                  <span class="source-dot"></span>
+                  <span>OS Scheduling</span>
+                  <strong>9</strong>
+                </div>
+
+
+                <div class="used-source">
+                  <span class="source-dot"></span>
+                  <span>Networking</span>
+                  <strong>8</strong>
+                </div>
+
+              </div>
+
+              <div class="chat-side-card ai-settings">
+
+                <div class="chat-side-title">
+                  ⚙ &nbsp; AI SETTINGS
+                </div>
+
+
+                <label>
+                  Response Style
+                </label>
+
+                <select>
+                  <option>Detailed</option>
+                  <option>Concise</option>
+                  <option>Simple</option>
+                </select>
+
+
+                <div class="setting-row">
+
+                  <span>Sources</span>
+
+                  <label class="toggle">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+
+                </div>
+
+
+                <p class="settings-info">
+                  AI answers are based only on your uploaded content.
+                </p>
+
+              </div>
+
+            </aside>
+
+          </div>
+
+          <div class="recent-chats">
+
+            <div class="recent-chats-header">
+
+              <div>
+                <h2>Recent Chats</h2>
+                <p>Continue your previous conversations</p>
+              </div>
+
+              <button class="ghost">
+                View All →
+              </button>
+
+            </div>
+
+
+            <div class="recent-chat-list">
+
+              <button class="recent-chat-item">
+
+                <div class="recent-chat-icon purple">
+                  ✦
+                </div>
+
+                <div class="recent-chat-info">
+
+                  <h3>
+                    Horizontal vs Vertical Scaling
+                  </h3>
+
+                  <p>
+                    Explained from your System Design notes
+                  </p>
+
+                </div>
+
+                <span class="recent-chat-time">
+                  Today
+                </span>
+
+                <span class="recent-chat-arrow">
+                  →
+                </span>
+
+              </button>
+
+              <button class="recent-chat-item">
+
+                <div class="recent-chat-icon cyan">
+                  ▣
+                </div>
+
+                <div class="recent-chat-info">
+
+                  <h3>
+                    DBMS Normalization
+                  </h3>
+
+                  <p>
+                    Summary based on your saved DBMS notes
+                  </p>
+
+                </div>
+
+                <span class="recent-chat-time">
+                  Today
+                </span>
+
+                <span class="recent-chat-arrow">
+                  →
+                </span>
+
+              </button>
+
+              <button class="recent-chat-item">
+
+                <div class="recent-chat-icon green">
+                  ✓
+                </div>
+
+                <div class="recent-chat-info">
+
+                  <h3>
+                    CAP Theorem
+                  </h3>
+
+                  <p>
+                    Consistency, availability and partition tolerance
+                  </p>
+
+                </div>
+
+                <span class="recent-chat-time">
+                  Yesterday
+                </span>
+
+                <span class="recent-chat-arrow">
+                  →
+                </span>
+
+              </button>
+
+              <button class="recent-chat-item">
+
+                <div class="recent-chat-icon yellow">
+                  ◉
+                </div>
+
+                <div class="recent-chat-info">
+
+                  <h3>
+                    TCP vs UDP
+                  </h3>
+
+                  <p>
+                    Comparison from your Networking notes
+                  </p>
+
+                </div>
+
+                <span class="recent-chat-time">
+                  Yesterday
+                </span>
+
+                <span class="recent-chat-arrow">
+                  →
+                </span>
+
+              </button>
+
+
+            </div>
+
+          </div>
+
+
+        </div>
+
+      </section>
       <section class="page" id="graph">
+        <div class="graph-header">
+
+          <div>
+            <h1>Knowledge Graph</h1>
+            <p>Visualize connections between your notes, concepts, and ideas.</p>
+          </div>
+
+          <div class="graph-header-actions">
+            <button class="ghost">
+              ⛶ Fullscreen
+            </button>
+
+            <button class="ghost">
+              ⇩ Export Graph
+            </button>
+          </div>
+
+        </div>
+
         <div class="graph-page">
           <div class="graph-work">
             <div class="graph-toolbar">
@@ -2019,24 +2763,77 @@
               </svg>
             </div>
             <div class="graph-legend"><span><span class="dot"
-                  style="display:inline-block;background:var(--purple);box-shadow:none"></span> Note</span><span><span
-                  class="dot" style="display:inline-block;background:var(--cyan);box-shadow:none"></span>
+                  style="display:inline-block;background:var(--purple);box-shadow:none"></span>
+                Note</span><span><span class="dot"
+                  style="display:inline-block;background:var(--cyan);box-shadow:none"></span>
                 PDF</span><span><span class="dot"
-                  style="display:inline-block;background:var(--red);box-shadow:none"></span> YouTube</span><span>47
+                  style="display:inline-block;background:var(--red);box-shadow:none"></span>
+                YouTube</span><span>47
                 nodes</span><span>134 connections</span></div>
           </div>
           <aside class="inspector">
+
             <div class="section-title">Selected Node</div>
-            <div class="node-icon">|</div>
+
+            <div class="node-icon">●</div>
+
             <h2>System Design</h2>
-            <div class="tags"><span class="tag">note</span></div>
+
+            <div class="tags">
+              <span class="tag">note</span>
+            </div>
+
             <div class="side-section">
               <h3>Connected to</h3>
-              <div class="chain"><span>| Load Balancing</span><span>| DBMS Notes</span><span>| OS
-                  Scheduling</span><span>| Networking</span></div>
+
+              <div class="chain">
+                <span>Load Balancing</span>
+                <span>DBMS Notes</span>
+                <span>OS Scheduling</span>
+                <span>Networking</span>
+              </div>
             </div>
-            <button class="primary" style="width:100%" data-open-page="detail">Open Note -></button>
+
+            <button class="primary" style="width:100%" data-open-page="detail">
+              Open Note ->
+            </button>
+
           </aside>
+        </div>
+        <div class="graph-stats">
+
+          <div class="graph-stat-card">
+            <div class="graph-stat-icon purple">◈</div>
+
+            <div>
+              <span>Total Nodes</span>
+              <strong>47</strong>
+              <small>Knowledge points</small>
+            </div>
+          </div>
+
+
+          <div class="graph-stat-card">
+            <div class="graph-stat-icon cyan">⌘</div>
+
+            <div>
+              <span>Connections</span>
+              <strong>134</strong>
+              <small>Active relationships</small>
+            </div>
+          </div>
+
+
+          <div class="graph-stat-card">
+            <div class="graph-stat-icon green">✦</div>
+
+            <div>
+              <span>Topics</span>
+              <strong>8</strong>
+              <small>Connected clusters</small>
+            </div>
+          </div>
+
         </div>
       </section>
     </main>

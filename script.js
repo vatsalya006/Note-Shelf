@@ -73,3 +73,63 @@ if (mobileOverlay) {
     document.getElementById("app-screen").classList.remove("sidebar-open");
   };
 }
+
+const aiSearchInput =
+  document.getElementById("ai-search-input");
+
+const aiSearchButton =
+  document.getElementById("ai-search-button");
+
+const quickSearchButtons =
+  document.querySelectorAll(".quick-search");
+
+quickSearchButtons.forEach((button) => {
+
+  button.addEventListener("click", () => {
+
+    if (!aiSearchInput) return;
+
+    aiSearchInput.value =
+      button.textContent.trim();
+
+    aiSearchInput.focus();
+
+  });
+
+});
+
+
+if (aiSearchButton) {
+
+  aiSearchButton.addEventListener("click", () => {
+
+    const query =
+      aiSearchInput.value.trim();
+
+    if (!query) {
+
+      aiSearchInput.focus();
+
+      return;
+
+    }
+
+    console.log("AI Search query:", query);
+
+  });
+
+}
+
+if (aiSearchInput) {
+
+  aiSearchInput.addEventListener("keydown", (event) => {
+
+    if (event.key === "Enter") {
+
+      aiSearchButton.click();
+
+    }
+
+  });
+
+}
