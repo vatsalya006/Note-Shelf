@@ -388,6 +388,11 @@
   </section>
 
   <div class="app hidden" id="app-screen">
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open navigation">
+      ☰
+    </button>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
     <aside class="sidebar">
       <div class="brand">
         <div class="logo">NS</div>
@@ -396,7 +401,6 @@
           <span>Knowledge Graph</span>
         </div>
       </div>
-      <div class="activity"><b>134</b> connections active</div>
 
       <div class="nav-label">Workspace</div>
       <nav class="nav">
@@ -445,7 +449,6 @@
 
               <kbd>Ctrl K</kbd>
             </div>
-
             <button class="dashboard-notification">
               ♧
             </button>
@@ -453,22 +456,13 @@
             <div class="dashboard-user-avatar">
               R
             </div>
-
             <button class="primary">
               ✦ New Note
             </button>
-
           </div>
-
         </div>
 
-
-        <!-- ================= TOP STAT CARDS ================= -->
-
         <div class="dashboard-stat-grid">
-
-
-          <!-- Knowledge Health -->
 
           <div class="dashboard-stat health-stat">
 
@@ -497,9 +491,6 @@
             </div>
 
           </div>
-
-
-          <!-- Total Notes -->
 
           <div class="dashboard-stat">
 
@@ -531,9 +522,6 @@
 
           </div>
 
-
-          <!-- PDFs -->
-
           <div class="dashboard-stat">
 
             <div class="stat-icon purple-stat-icon">
@@ -563,9 +551,6 @@
             </div>
 
           </div>
-
-
-          <!-- YouTube -->
 
           <div class="dashboard-stat">
 
@@ -597,9 +582,6 @@
 
           </div>
 
-
-          <!-- Review Due -->
-
           <div class="dashboard-stat">
 
             <div class="stat-icon cyan-stat-icon">
@@ -622,13 +604,7 @@
 
         </div>
 
-
-        <!-- ================= MIDDLE SECTION ================= -->
-
         <div class="dashboard-middle-grid">
-
-
-          <!-- KNOWLEDGE MAP -->
 
           <div class="new-dashboard-panel knowledge-map-panel">
 
@@ -650,8 +626,6 @@
 
               <svg viewBox="0 0 650 360" preserveAspectRatio="xMidYMid meet">
 
-                <!-- connections -->
-
                 <g fill="none" stroke="#303248" stroke-width="1.5">
 
                   <line x1="325" y1="180" x2="160" y2="80" />
@@ -662,18 +636,12 @@
 
                 </g>
 
-
-                <!-- strong connections -->
-
                 <g fill="none" stroke="#7c3cff" stroke-width="2.5">
 
                   <line x1="325" y1="180" x2="160" y2="80" />
                   <line x1="325" y1="180" x2="165" y2="285" />
 
                 </g>
-
-
-                <!-- center node -->
 
                 <circle cx="325" cy="180" r="48" fill="#7c3cff" />
 
@@ -685,17 +653,11 @@
                   Design
                 </text>
 
-
-                <!-- databases -->
-
                 <circle cx="325" cy="50" r="29" fill="#11121c" stroke="#16c8e8" stroke-width="2" />
 
                 <text x="325" y="55" text-anchor="middle" fill="#16c8e8" font-size="10" font-weight="800">
                   Databases
                 </text>
-
-
-                <!-- OS -->
 
                 <circle cx="160" cy="80" r="30" fill="#11121c" stroke="#287cff" stroke-width="2" />
 
@@ -703,17 +665,11 @@
                   OS
                 </text>
 
-
-                <!-- Networking -->
-
                 <circle cx="490" cy="80" r="31" fill="#11121c" stroke="#9b68ff" stroke-width="2" />
 
                 <text x="490" y="85" text-anchor="middle" fill="#a875ff" font-size="10" font-weight="800">
                   Networking
                 </text>
-
-
-                <!-- Algorithms -->
 
                 <circle cx="165" cy="285" r="29" fill="#11121c" stroke="#ff4d5e" stroke-width="2" />
 
@@ -721,26 +677,17 @@
                   Algorithms
                 </text>
 
-
-                <!-- Scalability -->
-
                 <circle cx="485" cy="285" r="29" fill="#11121c" stroke="#ffb020" stroke-width="2" />
 
                 <text x="485" y="290" text-anchor="middle" fill="#ffb020" font-size="9" font-weight="800">
                   Scalability
                 </text>
 
-
-                <!-- Memory -->
-
                 <circle cx="325" cy="315" r="27" fill="#11121c" stroke="#00d68f" stroke-width="2" />
 
                 <text x="325" y="320" text-anchor="middle" fill="#00d68f" font-size="10" font-weight="800">
                   Memory
                 </text>
-
-
-                <!-- note counts -->
 
                 <text x="235" y="115" fill="#7f89a6" font-size="10">
                   8 notes
@@ -787,9 +734,6 @@
             </div>
 
           </div>
-
-
-          <!-- KNOWLEDGE HEALTH -->
 
           <div class="new-dashboard-panel health-dashboard-panel">
 
@@ -877,10 +821,6 @@
             </div>
 
           </div>
-
-
-          <!-- AI INSIGHTS -->
-
           <div class="new-dashboard-panel ai-insights-panel">
 
             <div class="new-panel-header">
@@ -993,13 +933,7 @@
 
         </div>
 
-
-        <!-- ================= BOTTOM SECTION ================= -->
-
         <div class="dashboard-bottom-grid">
-
-
-          <!-- CONTINUE LEARNING -->
 
           <div class="new-dashboard-panel learning-dashboard-panel">
 
@@ -1097,9 +1031,6 @@
             </div>
 
           </div>
-
-
-          <!-- TODAY'S REVIEW PATH -->
 
           <div class="new-dashboard-panel review-dashboard-panel">
 
@@ -1241,50 +1172,374 @@
       </section>
 
       <section class="page" id="notes">
-        <div class="page-head">
+
+        <div class="page-head notes-page-head">
           <div>
-            <h1>All Notes <span style="color:var(--muted);font-size:14px;font-weight:500">47 knowledge items</span></h1>
+            <h1>
+              All Notes
+              <span class="notes-count">47 knowledge items</span>
+            </h1>
+            <p class="sub">
+              Your personal knowledge shelf — notes, PDFs and YouTube learning.
+            </p>
           </div>
-          <button class="primary">+ New Note</button>
+
+          <button class="primary">
+            + New Note
+          </button>
         </div>
-        <div class="toolbar">
-          <input class="search" placeholder="Search notes, tags, or connected concepts..." />
-          <button class="ghost active">All</button><button class="ghost">Notes</button><button
-            class="ghost">PDFs</button><button class="ghost">YouTube</button><button class="ghost">Sort</button>
+        <div class="notes-toolbar">
+
+          <div class="notes-search">
+            <span>⌕</span>
+            <input type="text" id="notes-search" placeholder="Search notes, tags, or connected concepts..." />
+          </div>
+
+          <div class="notes-filters">
+            <button class="ghost active notes-filter" data-filter="all">
+              All
+            </button>
+
+            <button class="ghost notes-filter" data-filter="note">
+              Notes
+            </button>
+
+            <button class="ghost notes-filter" data-filter="pdf">
+              PDFs
+            </button>
+
+            <button class="ghost notes-filter" data-filter="video">
+              YouTube
+            </button>
+
+            <button class="ghost notes-filter" data-filter="sort">
+              Sort
+            </button>
+          </div>
+
         </div>
-        <div class="grid three-grid">
-          <article class="card"><span class="badge">Note</span>
-            <h3>System Design - Load Balancing</h3>
-            <div class="tags"><span class="tag">engineering</span><span class="tag">backend</span><span
-                class="tag">system-design</span></div>
-            <div class="card-foot"><span>8 connections</span><a class="link" data-open-page="detail">Open -></a></div>
+
+        <div class="notes-grid" id="notes-grid">
+
+          <article class="note-card" data-type="note">
+
+            <div class="note-card-top">
+              <span class="badge">
+                Note
+              </span>
+
+              <span class="note-menu">
+                ⋮
+              </span>
+            </div>
+
+            <h3>
+              System Design - Load Balancing
+            </h3>
+
+            <p class="note-description">
+              Horizontal scaling, traffic distribution, server pools and
+              load balancing algorithms.
+            </p>
+
+            <div class="tags">
+              <span class="tag">engineering</span>
+              <span class="tag">backend</span>
+              <span class="tag">system-design</span>
+            </div>
+
+            <div class="note-card-footer">
+              <span>8 connections</span>
+
+              <a class="link" data-open-page="detail">
+                Open →
+              </a>
+            </div>
+
           </article>
-          <article class="card video"><span class="badge red">YouTube</span>
-            <h3>CS50 Week 4 - Pointers & Memory</h3>
-            <div class="tags"><span class="tag">cs</span><span class="tag">c-lang</span></div>
-            <div class="card-foot"><span>5 connections</span><a class="link" data-open-page="detail">Open -></a></div>
+
+          <article class="note-card video" data-type="video">
+
+            <div class="note-card-top">
+              <span class="badge red">
+                YouTube
+              </span>
+
+              <span class="note-menu">
+                ⋮
+              </span>
+            </div>
+
+            <h3>
+              CS50 Week 4 - Pointers & Memory
+            </h3>
+
+            <p class="note-description">
+              Memory management, pointers, stack, heap and dynamic allocation.
+            </p>
+
+            <div class="tags">
+              <span class="tag">cs</span>
+              <span class="tag">c-lang</span>
+              <span class="tag">memory</span>
+            </div>
+
+            <div class="note-card-footer">
+              <span>5 connections</span>
+
+              <a class="link" data-open-page="detail">
+                Open →
+              </a>
+            </div>
+
           </article>
-          <article class="card pdf"><span class="badge cyan">PDF</span>
-            <h3>DBMS Complete Notes VTU 5th Sem</h3>
-            <div class="tags"><span class="tag">dbms</span><span class="tag">sql</span></div>
-            <div class="card-foot"><span>12 connections</span><a class="link" data-open-page="detail">Open -></a></div>
+
+          <article class="note-card pdf" data-type="pdf">
+
+            <div class="note-card-top">
+              <span class="badge cyan">
+                PDF
+              </span>
+
+              <span class="note-menu">
+                ⋮
+              </span>
+            </div>
+
+            <h3>
+              DBMS Complete Notes
+            </h3>
+
+            <p class="note-description">
+              Normalization, indexing, transactions, SQL and database concepts.
+            </p>
+
+            <div class="tags">
+              <span class="tag">dbms</span>
+              <span class="tag">sql</span>
+              <span class="tag">database</span>
+            </div>
+
+            <div class="note-card-footer">
+              <span>12 connections</span>
+
+              <a class="link" data-open-page="detail">
+                Open →
+              </a>
+            </div>
+
           </article>
-          <article class="card"><span class="badge">Note</span>
-            <h3>OS Process Scheduling Algorithms</h3>
-            <div class="tags"><span class="tag">os</span><span class="tag">algorithms</span></div>
-            <div class="card-foot"><span>6 connections</span><a class="link" data-open-page="detail">Open -></a></div>
+
+          <article class="note-card" data-type="note">
+
+            <div class="note-card-top">
+              <span class="badge">
+                Note
+              </span>
+
+              <span class="note-menu">
+                ⋮
+              </span>
+            </div>
+
+            <h3>
+              OS Process Scheduling Algorithms
+            </h3>
+
+            <p class="note-description">
+              CPU scheduling, round robin, priority scheduling and process states.
+            </p>
+
+            <div class="tags">
+              <span class="tag">os</span>
+              <span class="tag">algorithms</span>
+              <span class="tag">scheduling</span>
+            </div>
+
+            <div class="note-card-footer">
+              <span>6 connections</span>
+
+              <a class="link" data-open-page="detail">
+                Open →
+              </a>
+            </div>
+
           </article>
-          <article class="card pdf"><span class="badge cyan">PDF</span>
-            <h3>Computer Networks - TCP/IP Model</h3>
-            <div class="tags"><span class="tag">networking</span></div>
-            <div class="card-foot"><span>9 connections</span><a class="link" data-open-page="detail">Open -></a></div>
+
+          <article class="note-card pdf" data-type="pdf">
+
+            <div class="note-card-top">
+              <span class="badge cyan">
+                PDF
+              </span>
+
+              <span class="note-menu">
+                ⋮
+              </span>
+            </div>
+
+            <h3>
+              Computer Networks - TCP/IP Model
+            </h3>
+
+            <p class="note-description">
+              TCP/IP layers, protocols, packet delivery and network communication.
+            </p>
+
+            <div class="tags">
+              <span class="tag">networking</span>
+              <span class="tag">tcp</span>
+              <span class="tag">protocols</span>
+            </div>
+
+            <div class="note-card-footer">
+              <span>9 connections</span>
+
+              <a class="link" data-open-page="detail">
+                Open →
+              </a>
+            </div>
+
           </article>
-          <article class="card video"><span class="badge red">YouTube</span>
-            <h3>React Hooks Deep Dive - useCallback</h3>
-            <div class="tags"><span class="tag">react</span><span class="tag">frontend</span></div>
-            <div class="card-foot"><span>4 connections</span><a class="link" data-open-page="detail">Open -></a></div>
+
+          <article class="note-card video" data-type="video">
+
+            <div class="note-card-top">
+              <span class="badge red">
+                YouTube
+              </span>
+
+              <span class="note-menu">
+                ⋮
+              </span>
+            </div>
+
+            <h3>
+              React Hooks Deep Dive - useCallback
+            </h3>
+
+            <p class="note-description">
+              React hooks, rendering behaviour, memoization and useCallback.
+            </p>
+
+            <div class="tags">
+              <span class="tag">react</span>
+              <span class="tag">frontend</span>
+              <span class="tag">javascript</span>
+            </div>
+
+            <div class="note-card-footer">
+              <span>4 connections</span>
+
+              <a class="link" data-open-page="detail">
+                Open →
+              </a>
+            </div>
+
           </article>
+
+          <article class="note-card extra-note hidden-note" data-type="note">
+
+            <div class="note-card-top">
+              <span class="badge">
+                Note
+              </span>
+            </div>
+
+            <h3>
+              Java DSA - Arrays
+            </h3>
+
+            <p class="note-description">
+              Arrays, prefix sum, two pointers and common interview patterns.
+            </p>
+
+            <div class="tags">
+              <span class="tag">java</span>
+              <span class="tag">dsa</span>
+              <span class="tag">arrays</span>
+            </div>
+
+            <div class="note-card-footer">
+              <span>7 connections</span>
+              <a class="link" data-open-page="detail">Open →</a>
+            </div>
+
+          </article>
+
+
+          <article class="note-card extra-note hidden-note" data-type="pdf">
+
+            <div class="note-card-top">
+              <span class="badge cyan">
+                PDF
+              </span>
+            </div>
+
+            <h3>
+              Computer Science Fundamentals
+            </h3>
+
+            <p class="note-description">
+              Important CS concepts collected from different study resources.
+            </p>
+
+            <div class="tags">
+              <span class="tag">cs</span>
+              <span class="tag">fundamentals</span>
+            </div>
+
+            <div class="note-card-footer">
+              <span>11 connections</span>
+              <a class="link" data-open-page="detail">Open →</a>
+            </div>
+
+          </article>
+
+
+          <article class="note-card extra-note hidden-note" data-type="video">
+
+            <div class="note-card-top">
+              <span class="badge red">
+                YouTube
+              </span>
+            </div>
+
+            <h3>
+              JavaScript Advanced Concepts
+            </h3>
+
+            <p class="note-description">
+              Closures, callbacks, higher order functions and asynchronous JavaScript.
+            </p>
+
+            <div class="tags">
+              <span class="tag">javascript</span>
+              <span class="tag">web-dev</span>
+            </div>
+
+            <div class="note-card-footer">
+              <span>6 connections</span>
+              <a class="link" data-open-page="detail">Open →</a>
+            </div>
+
+          </article>
+
         </div>
+
+        <div class="show-more-container">
+
+          <button class="show-more-button" id="show-more-notes">
+            <span>Show More</span>
+            <span class="show-more-arrow">↓</span>
+          </button>
+
+          <p class="notes-result-count">
+            Showing <strong>6</strong> of 47 knowledge items
+          </p>
+
+        </div>
+
       </section>
 
       <section class="page" id="detail">
@@ -1336,60 +1591,311 @@
       </section>
 
       <section class="page" id="upload">
-        <div class="page-head">
-          <div>
-            <h1>Upload Content</h1>
-            <p class="sub">Drop PDFs or import YouTube links. AI will build summaries, tags, and graph connections.</p>
-          </div>
-        </div>
-        <div class="grid two-grid">
-          <div class="panel pad">
-            <h2>Upload PDF</h2>
-            <div class="upload-box">
-              <div>
-                <div style="font-size:34px;color:var(--cyan)">|</div><strong>Drop PDF here</strong><span>or click to
-                  browse - max 50MB</span>
-              </div>
-            </div>
-            <div class="steps">
-              <div class="step"><span class="dot"></span>Extract full text</div>
-              <div class="step"><span class="dot"></span>Generate summary</div>
-              <div class="step"><span class="dot"></span>Auto-tag topics</div>
-              <div class="step"><span class="dot"></span>Create graph connections</div>
-            </div>
-          </div>
-          <div class="panel pad">
-            <h2>YouTube Import</h2>
-            <input class="search" style="width:100%;margin-top:16px" value="https://youtube.com/watch?v=..." />
-            <div class="video-preview">
-              <div class="play">|</div>
-            </div>
-            <div class="steps">
-              <div class="step"><span class="dot" style="background:var(--red)"></span>Fetch transcript</div>
-              <div class="step"><span class="dot" style="background:var(--red)"></span>Extract key timestamps</div>
-              <div class="step"><span class="dot" style="background:var(--red)"></span>Connect to saved notes</div>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:22px" class="panel pad">
-          <div class="section-title">Processing Queue</div>
-          <div class="queue">
-            <div class="queue-row">
-              <div>
-                <h3>DBMS_Complete_Notes.pdf</h3>
-                <p class="sub">Extracted text -> summary generated -> 12 topics found -> added to graph</p>
-              </div><span class="badge green">Done</span>
-            </div>
-            <div class="queue-row">
-              <div>
-                <h3>CS50 Week 4 - Memory</h3>
-                <p class="sub">Transcript fetched -> timestamps found -> summarizing</p>
-              </div><span class="badge">Processing</span>
-            </div>
-          </div>
-        </div>
-      </section>
 
+        <div class="page-head upload-page-head">
+          <div>
+            <h1>Upload Documents</h1>
+            <p class="sub">
+              Add documents to your knowledge base and build intelligent connections.
+            </p>
+          </div>
+        </div>
+
+
+        <div class="upload-main-card">
+
+          <div class="upload-drop-zone">
+
+            <div class="upload-cloud-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 18h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 7 8.5a4.5 4.5 0 0 0 0 9.5Z"></path>
+                <path d="M12 12v6"></path>
+                <path d="m9.5 15 2.5-3 2.5 3"></path>
+              </svg>
+            </div>
+
+            <h2>Drop files here or <span>click to browse</span></h2>
+
+            <p>
+              Upload PDFs, documents, and text files up to 50MB.
+            </p>
+
+            <label class="upload-browse-button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5h6l2 2h8v12H4z"></path>
+                <path d="M12 11v5"></path>
+                <path d="m10 13 2-2 2 2"></path>
+              </svg>
+
+              Browse Files
+
+              <input type="file" id="document-file-input" hidden accept=".pdf,.doc,.docx,.txt,.md,.csv" />
+            </label>
+
+            <div class="upload-divider">
+              <span>or</span>
+            </div>
+
+            <div class="upload-sources">
+
+              <button class="upload-source">
+                <span class="source-icon pdf-icon">PDF</span>
+                PDF Files
+              </button>
+
+              <button class="upload-source">
+                <span class="source-icon doc-icon">W</span>
+                Word Documents
+              </button>
+
+              <button class="upload-source">
+                <span class="source-icon text-icon">TXT</span>
+                Text Files
+              </button>
+
+              <button class="upload-source">
+                <span class="source-icon csv-icon">CSV</span>
+                CSV Files
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="upload-section-heading">
+
+          <div>
+            <div class="section-title">Supported File Types</div>
+            <p class="sub">
+              Upload the formats you use for your personal knowledge base.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div class="file-type-grid">
+
+          <div class="file-type-card">
+            <div class="file-type-icon pdf-icon">PDF</div>
+
+            <div>
+              <h3>PDF Files</h3>
+              <p>Best for documents</p>
+              <span>.pdf</span>
+            </div>
+          </div>
+
+
+          <div class="file-type-card">
+            <div class="file-type-icon doc-icon">W</div>
+
+            <div>
+              <h3>Word Documents</h3>
+              <p>Editable documents</p>
+              <span>.docx, .doc</span>
+            </div>
+          </div>
+
+
+          <div class="file-type-card">
+            <div class="file-type-icon text-icon">TXT</div>
+
+            <div>
+              <h3>Text Files</h3>
+              <p>Plain text notes</p>
+              <span>.txt, .md</span>
+            </div>
+          </div>
+
+
+          <div class="file-type-card">
+            <div class="file-type-icon csv-icon">CSV</div>
+
+            <div>
+              <h3>CSV Files</h3>
+              <p>Structured data</p>
+              <span>.csv</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="recent-upload-panel">
+
+          <div class="recent-upload-header">
+
+            <div>
+              <div class="section-title">Recent Uploads</div>
+
+              <p class="sub">
+                Your recently added documents.
+              </p>
+            </div>
+
+            <button class="ghost">
+              View All
+            </button>
+
+          </div>
+
+
+          <div class="recent-upload-list">
+
+
+            <div class="recent-upload-item">
+
+              <div class="recent-file-icon pdf-icon">
+                PDF
+              </div>
+
+              <div class="recent-file-info">
+
+                <h3>DBMS Complete Notes.pdf</h3>
+
+                <p>
+                  2.1 MB · Uploaded today
+                </p>
+
+              </div>
+
+              <span class="upload-status">
+                Processed
+              </span>
+
+              <button class="upload-more" aria-label="More options">
+                ⋮
+              </button>
+
+            </div>
+
+
+            <div class="recent-upload-item">
+
+              <div class="recent-file-icon doc-icon">
+                W
+              </div>
+
+              <div class="recent-file-info">
+
+                <h3>System Design Notes.docx</h3>
+
+                <p>
+                  1.6 MB · Uploaded yesterday
+                </p>
+
+              </div>
+
+              <span class="upload-status">
+                Processed
+              </span>
+
+              <button class="upload-more" aria-label="More options">
+                ⋮
+              </button>
+
+            </div>
+
+
+            <div class="recent-upload-item">
+
+              <div class="recent-file-icon text-icon">
+                TXT
+              </div>
+
+              <div class="recent-file-info">
+
+                <h3>JavaScript Reference.md</h3>
+
+                <p>
+                  890 KB · Uploaded 2 days ago
+                </p>
+
+              </div>
+
+              <span class="upload-status">
+                Processed
+              </span>
+
+              <button class="upload-more" aria-label="More options">
+                ⋮
+              </button>
+
+            </div>
+
+
+            <div class="recent-upload-item">
+
+              <div class="recent-file-icon pdf-icon">
+                PDF
+              </div>
+
+              <div class="recent-file-info">
+
+                <h3>Computer Networks.pdf</h3>
+
+                <p>
+                  3.2 MB · Uploaded 3 days ago
+                </p>
+
+              </div>
+
+              <span class="upload-status">
+                Processed
+              </span>
+
+              <button class="upload-more" aria-label="More options">
+                ⋮
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="upload-info-bar">
+
+          <div class="upload-info-item">
+
+            <div class="upload-info-icon">✓</div>
+
+            <div>
+              <strong>Secure & Private</strong>
+              <span>Your files stay protected.</span>
+            </div>
+
+          </div>
+
+
+          <div class="upload-info-item">
+
+            <div class="upload-info-icon">✦</div>
+
+            <div>
+              <strong>Smart Processing</strong>
+              <span>AI will analyze your content.</span>
+            </div>
+
+          </div>
+
+
+          <div class="upload-info-item">
+
+            <div class="upload-info-icon">⌘</div>
+
+            <div>
+              <strong>Build Connections</strong>
+              <span>Link ideas across your knowledge.</span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
       <section class="page" id="search">
         <div class="page-head">
           <div>

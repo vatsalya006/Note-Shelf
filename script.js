@@ -58,3 +58,18 @@ if (passwordInput && passwordToggle) {
     );
   });
 }
+
+const mobileMenu = document.getElementById("mobile-menu-btn");
+const mobileOverlay = document.getElementById("sidebar-overlay");
+
+if (mobileMenu) {
+  mobileMenu.onclick = function () {
+    document.getElementById("app-screen").classList.toggle("sidebar-open");
+  };
+}
+
+if (mobileOverlay) {
+  mobileOverlay.onclick = function () {
+    document.getElementById("app-screen").classList.remove("sidebar-open");
+  };
+}
