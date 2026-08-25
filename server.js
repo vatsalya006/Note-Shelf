@@ -3,6 +3,7 @@ require("dotenv").config();
 const User = require("./models/User");
 const Note = require("./models/Note");
 const authRoutes = require("./routes/authRoutes");
+const authMiddleware = require("./middleware/authMiddleware");
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -15,6 +16,12 @@ console.log("Hashed password:", hashedPassword);
 const app = express();
 
 app.use(express.json());
+app.get("/api/protected", authMiddleware, (req, res) => {
+    res.json({
+        message: "You accessed a protected route!",
+        userId: req.user
+    });
+});
 
 app.use("/api/auth", authRoutes);
 
