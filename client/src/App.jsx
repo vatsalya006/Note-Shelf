@@ -8,6 +8,9 @@ import Dashboard from "./pages/Dashboard";
 import Notes from "./pages/Notes";
 import Upload from "./pages/Upload";
 import NoteDetail from "./pages/NoteDetail";
+import AISearch from "./pages/AISearch";
+import Graph from "./pages/Graph";
+import AIChat from "./pages/AIChat";
 
 function App() {
   return (
@@ -54,6 +57,30 @@ function App() {
           element={
             <AppLayout>
               <NoteDetail />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/ai-search"
+          element={
+            <AppLayout>
+              <AISearch />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/graph"
+          element={
+            <AppLayout>
+              <Graph />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/ai-chat"
+          element={
+            <AppLayout>
+              <AIChat />
             </AppLayout>
           }
         />
