@@ -12,6 +12,7 @@ import AISearch from "./pages/AISearch";
 import Graph from "./pages/Graph";
 import AIChat from "./pages/AIChat";
 import Register from "./pages/Register";
+import NewNote from "./pages/NewNote";
 
 function App() {
   return (
@@ -45,7 +46,14 @@ function App() {
             </AppLayout>
           }
         />
-
+        <Route
+          path="/notes/new"
+          element={
+            <AppLayout>
+              <NewNote />
+            </AppLayout>
+          }
+        />
         <Route
           path="/upload"
           element={

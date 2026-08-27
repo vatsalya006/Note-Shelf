@@ -1,150 +1,398 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 
 function NoteDetail() {
     const navigate = useNavigate();
+    const { id } = useParams();
+
+    const [note, setNote] = useState(null);
+
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
+    const [editing, setEditing] = useState(false);
+    const [error, setError] = useState("");
+
+    const modules = {
+        toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["blockquote", "code-block"],
+            ["link"],
+            ["clean"],
+        ],
+    };
+
+    // =========================
+    // FETCH NOTE
+    // =========================
+
+    useEffect(() => {
+        const fetchNote = async () => {
+            try {
+                setLoading(true);
+                setError("");
+
+                const token = localStorage.getItem("token");
+
+                const response = await fetch(
+                    `http://localhost:3000/api/notes/${id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.message || "Failed to fetch note"
+                    );
+                }
+
+                setNote(data.note);
+
+                setTitle(data.note.title || "");
+                setContent(data.note.content || "");
+            } catch (error) {
+                console.error("Failed to fetch note:", error);
+
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchNote();
+    }, [id]);
+
+    // =========================
+    // SAVE NOTE
+    // =========================
+
+    const handleSave = async () => {
+        if (!title.trim()) {
+            setError("Title is required.");
+            return;
+        }
+
+        if (
+            !content.trim() ||
+            content === "<p><br></p>"
+        ) {
+            setError("Content is required.");
+            return;
+        }
+
+        try {
+            setSaving(true);
+            setError("");
+
+            const token = localStorage.getItem("token");
+
+            const response = await fetch(
+                `http://localhost:3000/api/notes/${id}`,
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+
+                    body: JSON.stringify({
+                        title,
+                        content,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Failed to update note"
+                );
+            }
+
+            setNote(data.note);
+
+            setTitle(data.note.title || "");
+            setContent(data.note.content || "");
+
+            setEditing(false);
+        } catch (error) {
+            console.error("Failed to update note:", error);
+
+            setError(error.message);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    // =========================
+    // DELETE NOTE
+    // =========================
+
+    const handleDelete = async () => {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this note? This action cannot be undone."
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            setDeleting(true);
+            setError("");
+
+            const token = localStorage.getItem("token");
+
+            const response = await fetch(
+                `http://localhost:3000/api/notes/${id}`,
+                {
+                    method: "DELETE",
+
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Failed to delete note"
+                );
+            }
+
+            navigate("/notes");
+        } catch (error) {
+            console.error("Failed to delete note:", error);
+
+            setError(error.message);
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    // =========================
+    // CANCEL EDITING
+    // =========================
+
+    const handleCancelEdit = () => {
+        setTitle(note.title || "");
+        setContent(note.content || "");
+
+        setError("");
+        setEditing(false);
+    };
+
+    // =========================
+    // LOADING
+    // =========================
+
+    if (loading) {
+        return (
+            <section className="detail-page">
+                <p>Loading note...</p>
+            </section>
+        );
+    }
+
+    // =========================
+    // ERROR
+    // =========================
+
+    if (error && !note) {
+        return (
+            <section className="detail-page">
+
+                <p className="form-error">
+                    {error}
+                </p>
+
+                <button
+                    className="link back-to-notes"
+                    type="button"
+                    onClick={() => navigate("/notes")}
+                >
+                    ← Back to Notes
+                </button>
+
+            </section>
+        );
+    }
+
+    // =========================
+    // NOTE DETAIL
+    // =========================
 
     return (
         <section className="detail-page">
 
             <div className="detail-layout">
 
-                {/* ================= NOTE CONTENT ================= */}
-
                 <article className="article">
 
+                    {/* =========================
+                        BREADCRUMB
+                    ========================= */}
+
                     <div className="crumbs">
-                        Notes / System Design / Load Balancing
+                        Notes / {note?.title}
                     </div>
 
 
-                    {/* Editor toolbar */}
+                    {/* =========================
+                        TOP ACTIONS
+                    ========================= */}
 
-                    <div className="editor-tools">
+                    <div className="detail-actions">
 
-                        <button type="button">
-                            <b>B</b>
-                        </button>
+                        {!editing ? (
+                            <>
+                                <button
+                                    className="ghost"
+                                    type="button"
+                                    onClick={() => {
+                                        setError("");
+                                        setEditing(true);
+                                    }}
+                                >
+                                    Edit
+                                </button>
 
-                        <button type="button">
-                            <i>I</i>
-                        </button>
+                                <button
+                                    className="danger"
+                                    type="button"
+                                    onClick={handleDelete}
+                                    disabled={deleting}
+                                >
+                                    {deleting
+                                        ? "Deleting..."
+                                        : "Delete"}
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    className="ghost"
+                                    type="button"
+                                    onClick={handleCancelEdit}
+                                    disabled={saving}
+                                >
+                                    Cancel
+                                </button>
 
-                        <button type="button">
-                            <u>U</u>
-                        </button>
-
-                        <span>|</span>
-
-                        <button type="button">
-                            H1
-                        </button>
-
-                        <button type="button">
-                            H2
-                        </button>
-
-                        <button type="button">
-                            •
-                        </button>
-
-                        <button type="button">
-                            Link
-                        </button>
-
-                        <button type="button">
-                            AI
-                        </button>
+                                <button
+                                    className="primary"
+                                    type="button"
+                                    onClick={handleSave}
+                                    disabled={saving}
+                                >
+                                    {saving
+                                        ? "Saving..."
+                                        : "Save Changes"}
+                                </button>
+                            </>
+                        )}
 
                     </div>
 
 
-                    {/* Title */}
+                    {/* =========================
+                        ERROR
+                    ========================= */}
 
-                    <h1>
-                        System Design - Load Balancing
-                    </h1>
+                    {error && (
+                        <p className="form-error">
+                            {error}
+                        </p>
+                    )}
 
 
-                    {/* Tags */}
+                    {/* =========================
+                        TITLE
+                    ========================= */}
+
+                    {editing ? (
+                        <input
+                            className="detail-title-input"
+                            type="text"
+                            value={title}
+                            onChange={(event) =>
+                                setTitle(event.target.value)
+                            }
+                            placeholder="Note title..."
+                        />
+                    ) : (
+                        <h1>
+                            {note?.title}
+                        </h1>
+                    )}
+
+
+                    {/* =========================
+                        TYPE
+                    ========================= */}
 
                     <div className="tags">
 
                         <span className="tag">
-                            engineering
+                            Note
                         </span>
-
-                        <span className="tag">
-                            backend
-                        </span>
-
-                        <span className="tag">
-                            system-design
-                        </span>
-
-                        <button
-                            className="tag add-tag"
-                            type="button"
-                        >
-                            + Add tag
-                        </button>
 
                     </div>
 
 
-                    {/* Content */}
+                    {/* =========================
+                        CONTENT
+                    ========================= */}
 
-                    <h2>
-                        What is Load Balancing?
-                    </h2>
+                    {editing ? (
 
-                    <p>
-                        Load balancing distributes network traffic across multiple
-                        servers. This prevents a single server from becoming overloaded
-                        and improves application responsiveness.
-                    </p>
+                        <div className="detail-editor">
 
+                            <ReactQuill
+                                theme="snow"
+                                value={content}
+                                onChange={setContent}
+                                modules={modules}
+                                placeholder="Write your note here..."
+                            />
 
-                    <h2>
-                        Types of Load Balancing Algorithms
-                    </h2>
+                        </div>
 
-                    <ul>
+                    ) : (
 
-                        <li>
-                            <strong>Round Robin</strong> distributes requests
-                            sequentially across servers.
-                        </li>
+                        <div
+                            className="note-content"
+                            dangerouslySetInnerHTML={{
+                                __html:
+                                    note?.content ||
+                                    "<p>No content</p>",
+                            }}
+                        />
 
-                        <li>
-                            <strong>Least Connections</strong> routes traffic to the
-                            least busy server.
-                        </li>
-
-                        <li>
-                            <strong>IP Hash</strong> uses the client IP to choose the
-                            destination server.
-                        </li>
-
-                        <li>
-                            <strong>Weighted Round Robin</strong> assigns
-                            capacity-based weights.
-                        </li>
-
-                    </ul>
+                    )}
 
 
-                    <h2>
-                        Horizontal vs Vertical Scaling
-                    </h2>
-
-                    <p>
-                        Horizontal scaling adds more machines to your server pool.
-                        Vertical scaling adds more power to existing machines.
-                        Load balancers make horizontal scaling practical.
-                    </p>
-
-
-                    {/* Back to notes */}
+                    {/* =========================
+                        BACK TO NOTES
+                    ========================= */}
 
                     <button
                         className="link back-to-notes"
@@ -155,104 +403,6 @@ function NoteDetail() {
                     </button>
 
                 </article>
-
-
-                {/* ================= AI CONTEXT ================= */}
-
-                <aside className="panel pad">
-
-                    {/* Summary */}
-
-                    <div className="side-section">
-
-                        <div className="section-title">
-                            AI Context
-                        </div>
-
-                        <h3>
-                            Auto Summary
-                        </h3>
-
-                        <p>
-                            Load balancing improves reliability by distributing traffic
-                            across multiple servers using routing algorithms.
-                        </p>
-
-                    </div>
-
-
-                    {/* Related Concepts */}
-
-                    <div className="side-section">
-
-                        <h3>
-                            Related Concepts
-                        </h3>
-
-                        <div className="chain">
-
-                            <span>
-                                │ DBMS Distributed Systems
-                            </span>
-
-                            <span>
-                                ├ OS Process Scheduling
-                            </span>
-
-                            <span>
-                                │ TCP/IP Stack
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    {/* Questions */}
-
-                    <div className="side-section">
-
-                        <h3>
-                            Questions to Ask
-                        </h3>
-
-                        <p>
-                            How does consistent hashing help distributed caches?
-                        </p>
-
-                    </div>
-
-
-                    {/* Version History */}
-
-                    <div className="side-section">
-
-                        <h3>
-                            Version History
-                        </h3>
-
-                        <p>
-                            2h ago - Auto saved
-                            <br />
-                            Yesterday - Manual save
-                            <br />
-                            3 days ago - Created
-                        </p>
-
-                    </div>
-
-
-                    {/* Future AI action */}
-
-                    <button
-                        className="primary"
-                        type="button"
-                        onClick={() => navigate("/ai-chat")}
-                    >
-                        Ask AI about this note
-                    </button>
-
-                </aside>
 
             </div>
 

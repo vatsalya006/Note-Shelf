@@ -1,5 +1,17 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+function getPlainText(html) {
+    if (!html) return "";
+
+    const temp = document.createElement("div");
+    temp.innerHTML = html;
+
+    return (temp.textContent || temp.innerText || "")
+        .replace(/\u00a0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
 
 function Notes() {
     const navigate = useNavigate();
@@ -7,87 +19,76 @@ function Notes() {
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState("all");
 
-    const notes = [
-        {
-            id: 1,
-            type: "note",
-            badge: "Note",
-            title: "System Design - Load Balancing",
-            description:
-                "Horizontal scaling, traffic distribution, server pools and load balancing algorithms.",
-            tags: ["engineering", "backend", "system-design"],
-            connections: 8,
-        },
-        {
-            id: 2,
-            type: "video",
-            badge: "YouTube",
-            title: "CS50 Week 4 - Pointers & Memory",
-            description:
-                "Memory management, pointers, stack, heap and dynamic allocation.",
-            tags: ["cs", "c-lang", "memory"],
-            connections: 5,
-        },
-        {
-            id: 3,
-            type: "pdf",
-            badge: "PDF",
-            title: "DBMS Complete Notes",
-            description:
-                "Normalization, indexing, transactions, SQL and database concepts.",
-            tags: ["dbms", "sql", "database"],
-            connections: 12,
-        },
-        {
-            id: 4,
-            type: "note",
-            badge: "Note",
-            title: "OS Process Scheduling Algorithms",
-            description:
-                "CPU scheduling, round robin, priority scheduling and process states.",
-            tags: ["os", "algorithms", "scheduling"],
-            connections: 6,
-        },
-        {
-            id: 5,
-            type: "pdf",
-            badge: "PDF",
-            title: "Computer Networks - TCP/IP Model",
-            description:
-                "TCP/IP layers, protocols, packet delivery and network communication.",
-            tags: ["networking", "tcp", "protocols"],
-            connections: 9,
-        },
-        {
-            id: 6,
-            type: "video",
-            badge: "YouTube",
-            title: "React Hooks Deep Dive - useCallback",
-            description:
-                "React hooks, rendering behaviour, memoization and useCallback.",
-            tags: ["react", "frontend", "javascript"],
-            connections: 4,
-        },
-    ];
+    const [notes, setNotes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const fetchNotes = async () => {
+            try {
+                setLoading(true);
+                setError("");
+
+                const token = localStorage.getItem("token");
+
+                const response = await fetch(
+                    "http://localhost:3000/api/notes",
+                    {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const data = await response.json();
+
+                console.log("Notes API response:", data);
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.message || "Failed to fetch notes"
+                    );
+                }
+
+                setNotes(data.notes || []);
+            } catch (error) {
+                console.error("Failed to fetch notes:", error);
+                setError(error.message || "Failed to fetch notes");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchNotes();
+    }, []);
 
     const filteredNotes = useMemo(() => {
+        const searchText = search.toLowerCase().trim();
+
         return notes.filter((note) => {
+            // Filter by type
             const matchesFilter =
-                filter === "all" || note.type === filter;
+                filter === "all" ||
+                note.type === filter ||
+                (filter === "note" && !note.type);
 
-            const searchText = search.toLowerCase().trim();
+            // Convert HTML content to normal text
+            const plainContent = getPlainText(note.content);
 
+            // Search title + content
             const matchesSearch =
                 searchText === "" ||
-                note.title.toLowerCase().includes(searchText) ||
-                note.description.toLowerCase().includes(searchText) ||
-                note.tags.some((tag) =>
-                    tag.toLowerCase().includes(searchText)
-                );
+                (note.title || "")
+                    .toLowerCase()
+                    .includes(searchText) ||
+                plainContent
+                    .toLowerCase()
+                    .includes(searchText);
 
             return matchesFilter && matchesSearch;
         });
-    }, [search, filter]);
+    }, [notes, search, filter]);
 
     return (
         <section className="notes-page">
@@ -99,13 +100,15 @@ function Notes() {
                 <div>
                     <h1>
                         All Notes
+
                         <span className="notes-count">
-                            47 knowledge items
+                            {notes.length} knowledge items
                         </span>
                     </h1>
 
                     <p className="sub">
-                        Your personal knowledge shelf — notes, PDFs and YouTube learning.
+                        Your personal knowledge shelf — notes, PDFs and
+                        YouTube learning.
                     </p>
                 </div>
 
@@ -132,7 +135,9 @@ function Notes() {
                         type="text"
                         placeholder="Search notes, tags, or connected concepts..."
                         value={search}
-                        onChange={(event) => setSearch(event.target.value)}
+                        onChange={(event) =>
+                            setSearch(event.target.value)
+                        }
                     />
 
                 </div>
@@ -141,36 +146,42 @@ function Notes() {
                 <div className="notes-filters">
 
                     <button
-                        className={`ghost ${filter === "all" ? "active" : ""}`}
+                        className={`ghost ${filter === "all" ? "active" : ""
+                            }`}
                         onClick={() => setFilter("all")}
                         type="button"
                     >
                         All
                     </button>
 
+
                     <button
-                        className={`ghost ${filter === "note" ? "active" : ""}`}
+                        className={`ghost ${filter === "note" ? "active" : ""
+                            }`}
                         onClick={() => setFilter("note")}
                         type="button"
                     >
                         Notes
                     </button>
 
+
                     <button
-                        className={`ghost ${filter === "pdf" ? "active" : ""}`}
-                        onClick={() => setFilter("pdf")}
+                        className="ghost"
                         type="button"
+                        disabled
                     >
                         PDFs
                     </button>
 
+
                     <button
-                        className={`ghost ${filter === "video" ? "active" : ""}`}
-                        onClick={() => setFilter("video")}
+                        className="ghost"
                         type="button"
+                        disabled
                     >
                         YouTube
                     </button>
+
 
                     <button
                         className="ghost"
@@ -184,119 +195,170 @@ function Notes() {
             </div>
 
 
+            {/* ================= LOADING ================= */}
+
+            {loading && (
+                <p>Loading notes...</p>
+            )}
+
+
+            {/* ================= ERROR ================= */}
+
+            {!loading && error && (
+                <p className="form-error">
+                    {error}
+                </p>
+            )}
+
+
             {/* ================= NOTES GRID ================= */}
 
-            <div className="notes-grid">
+            {!loading && !error && filteredNotes.length > 0 && (
 
-                {filteredNotes.map((note) => (
+                <div className="notes-grid">
 
-                    <article
-                        className={`note-card ${note.type === "pdf"
-                            ? "pdf"
-                            : note.type === "video"
-                                ? "video"
-                                : ""
-                            }`}
-                        key={note.id}
-                    >
+                    {filteredNotes.map((note) => {
 
-                        <div className="note-card-top">
+                        const description =
+                            getPlainText(note.content) ||
+                            "No content";
 
-                            <span
-                                className={`badge ${note.type === "pdf"
-                                    ? "cyan"
-                                    : note.type === "video"
-                                        ? "red"
-                                        : ""
-                                    }`}
+                        return (
+
+                            <article
+                                className="note-card"
+                                key={note._id}
                             >
-                                {note.badge}
-                            </span>
 
-                            <button
-                                className="note-menu"
-                                type="button"
-                                aria-label="Note options"
-                            >
-                                ⋮
-                            </button>
+                                {/* CARD TOP */}
 
-                        </div>
+                                <div className="note-card-top">
 
+                                    <span className="badge">
+                                        Note
+                                    </span>
 
-                        <h3>
-                            {note.title}
-                        </h3>
+                                    <button
+                                        className="note-menu"
+                                        type="button"
+                                        aria-label="Note options"
+                                    >
+                                        ⋮
+                                    </button>
 
-
-                        <p className="note-description">
-                            {note.description}
-                        </p>
+                                </div>
 
 
-                        <div className="tags">
+                                {/* TITLE */}
 
-                            {note.tags.map((tag) => (
-                                <span
-                                    className="tag"
-                                    key={tag}
-                                >
-                                    {tag}
-                                </span>
-                            ))}
-
-                        </div>
+                                <h3>
+                                    {note.title || "Untitled Note"}
+                                </h3>
 
 
-                        <div className="note-card-footer">
+                                {/* DESCRIPTION */}
 
-                            <span>
-                                {note.connections} connections
-                            </span>
+                                <p className="note-description">
+                                    {description}
+                                </p>
 
-                            <button
-                                className="link"
-                                type="button"
-                                onClick={() => navigate("/notes/1")}
-                            >
-                                Open →
-                            </button>
 
-                        </div>
+                                {/* TAG */}
 
-                    </article>
+                                <div className="tags">
 
-                ))}
+                                    <span className="tag">
+                                        note
+                                    </span>
 
-            </div>
+                                </div>
+
+
+                                {/* FOOTER */}
+
+                                <div className="note-card-footer">
+
+                                    <span>
+                                        0 connections
+                                    </span>
+
+                                    <button
+                                        className="link"
+                                        type="button"
+                                        onClick={() =>
+                                            navigate(
+                                                `/notes/${note._id}`
+                                            )
+                                        }
+                                    >
+                                        Open →
+                                    </button>
+
+                                </div>
+
+                            </article>
+
+                        );
+                    })}
+
+                </div>
+
+            )}
+
+
+            {/* ================= EMPTY STATE ================= */}
+
+            {!loading &&
+                !error &&
+                filteredNotes.length === 0 && (
+
+                    <p>
+                        {search
+                            ? "No notes match your search."
+                            : "No notes found."}
+                    </p>
+
+                )}
 
 
             {/* ================= RESULT COUNT ================= */}
 
-            <div className="show-more-container">
+            {!loading && !error && (
 
-                <button
-                    className="show-more-button"
-                    type="button"
-                >
-                    <span>
-                        Show More
-                    </span>
+                <div className="show-more-container">
 
-                    <span className="show-more-arrow">
-                        ↓
-                    </span>
-                </button>
+                    <button
+                        className="show-more-button"
+                        type="button"
+                    >
+                        <span>
+                            Show More
+                        </span>
 
-                <p className="notes-result-count">
-                    Showing{" "}
-                    <strong>
-                        {filteredNotes.length}
-                    </strong>{" "}
-                    of 47 knowledge items
-                </p>
+                        <span className="show-more-arrow">
+                            ↓
+                        </span>
+                    </button>
 
-            </div>
+                    <p className="notes-result-count">
+
+                        Showing{" "}
+
+                        <strong>
+                            {filteredNotes.length}
+                        </strong>
+
+                        {" "}of{" "}
+
+                        {notes.length}
+
+                        {" "}knowledge items
+
+                    </p>
+
+                </div>
+
+            )}
 
         </section>
     );

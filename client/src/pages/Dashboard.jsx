@@ -11,7 +11,7 @@ function Dashboard() {
             <div className="new-dashboard-header">
 
                 <div>
-                    <h1>Good morning, Rahul 👋</h1>
+                    <h1>Let's Start</h1>
                     <p>
                         Here's what's happening across your knowledge base.
                     </p>
