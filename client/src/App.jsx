@@ -11,6 +11,7 @@ import NoteDetail from "./pages/NoteDetail";
 import AISearch from "./pages/AISearch";
 import Graph from "./pages/Graph";
 import AIChat from "./pages/AIChat";
+import Register from "./pages/Register";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/" element={<Home />} />
 
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
 
         {/* Application pages */}

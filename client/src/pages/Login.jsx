@@ -3,15 +3,60 @@ import { useNavigate } from "react-router-dom";
 
 function Login() {
     const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState("rahul@example.com");
+    const [password, setPassword] = useState("secondbrain");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // For now, this is only frontend navigation.
-        // Backend authentication will come later.
-        navigate("/dashboard");
+        setError("");
+        setLoading(true);
+
+        try {
+            const response = await fetch(
+                "http://localhost:3000/api/auth/login",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+
+                    body: JSON.stringify({
+                        email,
+                        password,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Login failed"
+                );
+            }
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem(
+                "user",
+                JSON.stringify(data.user)
+            );
+
+            navigate("/dashboard");
+
+        } catch (error) {
+            console.error("Login error:", error);
+
+            setError(error.message);
+
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -45,7 +90,8 @@ function Login() {
 
                         <input
                             type="email"
-                            defaultValue="rahul@example.com"
+                            value={email}
+                            onChange={(event) => setEmail(event.target.value)}
                             placeholder="you@example.com"
                             autoComplete="email"
                         />
@@ -58,7 +104,8 @@ function Login() {
 
                             <input
                                 type={showPassword ? "text" : "password"}
-                                defaultValue="secondbrain"
+                                value={password}
+                                onChange={(event) => setPassword(event.target.value)}
                                 placeholder="Enter your password"
                                 autoComplete="current-password"
                             />
@@ -90,12 +137,17 @@ function Login() {
                         </button>
 
                     </div>
-
+                    {error && (
+                        <p className="form-error">
+                            {error}
+                        </p>
+                    )}
                     <button
                         className="primary signin-button"
                         type="submit"
+                        disabled={loading}
                     >
-                        Sign in
+                        {loading ? "Signing in..." : "Sign in"}
                     </button>
 
                 </form>

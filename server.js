@@ -9,12 +9,17 @@ const noteRoutes = require("./routes/noteRoutes");
 const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const cors = require("cors");
 
 const hashedPassword = bcrypt.hashSync("mypassword123", 10);
 
 console.log("Hashed password:", hashedPassword);
 
 const app = express();
+
+app.use(cors({
+    origin: "http://localhost:5173"
+}));
 
 app.use(express.json());
 
