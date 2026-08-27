@@ -1,12 +1,75 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Upload() {
+    const navigate = useNavigate();
     const fileInputRef = useRef(null);
 
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploading, setUploading] = useState(false);
+
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+
+    const [recentUploads, setRecentUploads] = useState([]);
+    const [loadingUploads, setLoadingUploads] = useState(true);
+
+    // =========================
+    // FETCH RECENT UPLOADS
+    // =========================
+
+    useEffect(() => {
+        const fetchRecentUploads = async () => {
+            try {
+                const token = localStorage.getItem("token");
+
+                if (!token) {
+                    setLoadingUploads(false);
+                    return;
+                }
+
+                const response = await fetch(
+                    "http://localhost:3000/api/notes",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.message || "Failed to fetch uploads"
+                    );
+                }
+
+                const pdfs = (data.notes || [])
+                    .filter((item) => item.type === "pdf")
+                    .sort(
+                        (a, b) =>
+                            new Date(b.createdAt || 0) -
+                            new Date(a.createdAt || 0)
+                    );
+
+                setRecentUploads(pdfs);
+            } catch (error) {
+                console.error(
+                    "Failed to fetch recent uploads:",
+                    error
+                );
+            } finally {
+                setLoadingUploads(false);
+            }
+        };
+
+        fetchRecentUploads();
+    }, []);
+
+    // =========================
+    // FILE CHANGE
+    // =========================
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -34,9 +97,17 @@ function Upload() {
         setSelectedFile(file);
     };
 
+    // =========================
+    // OPEN FILE PICKER
+    // =========================
+
     const openFilePicker = () => {
         fileInputRef.current?.click();
     };
+
+    // =========================
+    // UPLOAD PDF
+    // =========================
 
     const handleUpload = async () => {
         if (!selectedFile) {
@@ -70,7 +141,23 @@ function Upload() {
                 }
             );
 
-            const data = await response.json();
+            const contentType =
+                response.headers.get("content-type") || "";
+
+            let data;
+
+            if (contentType.includes("application/json")) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+
+                throw new Error(
+                    `Server returned an invalid response: ${text.slice(
+                        0,
+                        100
+                    )}`
+                );
+            }
 
             console.log("PDF upload response:", data);
 
@@ -80,14 +167,24 @@ function Upload() {
                 );
             }
 
+            // =========================
+            // SUCCESS
+            // =========================
+
             setMessage("PDF uploaded successfully!");
+
+            if (data.note) {
+                setRecentUploads((previous) => [
+                    data.note,
+                    ...previous,
+                ]);
+            }
 
             setSelectedFile(null);
 
             if (fileInputRef.current) {
                 fileInputRef.current.value = "";
             }
-
         } catch (error) {
             console.error("PDF upload error:", error);
             setError(error.message);
@@ -96,22 +193,33 @@ function Upload() {
         }
     };
 
+    // =========================
+    // FORMAT FILE SIZE
+    // =========================
+
+    const formatFileSize = (bytes) => {
+        if (!bytes) return "Unknown size";
+
+        return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    };
+
+    // =========================
+    // RETURN
+    // =========================
+
     return (
         <section className="upload-page">
 
             {/* ================= HEADER ================= */}
 
             <div className="page-head upload-page-head">
-
                 <div>
                     <h1>Upload Documents</h1>
 
                     <p className="sub">
-                        Add documents to your knowledge base and build intelligent
-                        connections.
+                        Add PDF documents to your knowledge base.
                     </p>
                 </div>
-
             </div>
 
 
@@ -126,7 +234,7 @@ function Upload() {
                     </div>
 
                     <h2>
-                        Drop files here or{" "}
+                        Drop your PDF here or{" "}
                         <span
                             onClick={openFilePicker}
                             style={{ cursor: "pointer" }}
@@ -136,9 +244,11 @@ function Upload() {
                     </h2>
 
                     <p>
-                        Upload PDF files up to 10MB.
+                        PDF files only • Maximum file size: 10MB
                     </p>
 
+
+                    {/* ================= FILE INPUT ================= */}
 
                     <label className="upload-browse-button">
 
@@ -173,20 +283,23 @@ function Upload() {
                             <br />
 
                             <span>
-                                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                                {formatFileSize(selectedFile.size)}
                             </span>
 
                         </div>
                     )}
 
 
-                    {/* ================= MESSAGES ================= */}
+                    {/* ================= ERROR ================= */}
 
                     {error && (
                         <p className="form-error">
                             {error}
                         </p>
                     )}
+
+
+                    {/* ================= SUCCESS ================= */}
 
                     {message && (
                         <p
@@ -219,152 +332,6 @@ function Upload() {
                         </button>
                     )}
 
-
-                    <div className="upload-divider">
-                        <span>or</span>
-                    </div>
-
-
-                    {/* ================= SOURCE BUTTONS ================= */}
-
-                    <div className="upload-sources">
-
-                        <button
-                            className="upload-source"
-                            type="button"
-                            onClick={openFilePicker}
-                        >
-                            <span className="source-icon pdf-icon">
-                                PDF
-                            </span>
-
-                            PDF Files
-                        </button>
-
-
-                        <button
-                            className="upload-source"
-                            type="button"
-                            disabled
-                        >
-                            <span className="source-icon doc-icon">
-                                W
-                            </span>
-
-                            Word Documents
-                        </button>
-
-
-                        <button
-                            className="upload-source"
-                            type="button"
-                            disabled
-                        >
-                            <span className="source-icon text-icon">
-                                TXT
-                            </span>
-
-                            Text Files
-                        </button>
-
-
-                        <button
-                            className="upload-source"
-                            type="button"
-                            disabled
-                        >
-                            <span className="source-icon csv-icon">
-                                CSV
-                            </span>
-
-                            CSV Files
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {/* ================= SUPPORTED TYPES ================= */}
-
-            <div className="upload-section-heading">
-
-                <div>
-
-                    <div className="section-title">
-                        Supported File Types
-                    </div>
-
-                    <p className="sub">
-                        Upload the formats you use for your personal knowledge base.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div className="file-type-grid">
-
-                <div className="file-type-card">
-
-                    <div className="file-type-icon pdf-icon">
-                        PDF
-                    </div>
-
-                    <div>
-                        <h3>PDF Files</h3>
-                        <p>Available now</p>
-                        <span>.pdf</span>
-                    </div>
-
-                </div>
-
-
-                <div className="file-type-card">
-
-                    <div className="file-type-icon doc-icon">
-                        W
-                    </div>
-
-                    <div>
-                        <h3>Word Documents</h3>
-                        <p>Coming soon</p>
-                        <span>.docx, .doc</span>
-                    </div>
-
-                </div>
-
-
-                <div className="file-type-card">
-
-                    <div className="file-type-icon text-icon">
-                        TXT
-                    </div>
-
-                    <div>
-                        <h3>Text Files</h3>
-                        <p>Coming soon</p>
-                        <span>.txt, .md</span>
-                    </div>
-
-                </div>
-
-
-                <div className="file-type-card">
-
-                    <div className="file-type-icon csv-icon">
-                        CSV
-                    </div>
-
-                    <div>
-                        <h3>CSV Files</h3>
-                        <p>Coming soon</p>
-                        <span>.csv</span>
-                    </div>
-
                 </div>
 
             </div>
@@ -383,7 +350,7 @@ function Upload() {
                         </div>
 
                         <p className="sub">
-                            Your recently added documents.
+                            Your recently added PDF documents.
                         </p>
 
                     </div>
@@ -391,6 +358,7 @@ function Upload() {
                     <button
                         className="ghost"
                         type="button"
+                        onClick={() => navigate("/notes")}
                     >
                         View All
                     </button>
@@ -400,37 +368,93 @@ function Upload() {
 
                 <div className="recent-upload-list">
 
-                    <div className="recent-upload-item">
+                    {loadingUploads && (
+                        <div className="recent-upload-item">
 
-                        <div className="recent-file-icon pdf-icon">
-                            PDF
-                        </div>
-
-                        <div className="recent-file-info">
-
-                            <h3>
-                                PDF uploads will appear here
-                            </h3>
-
-                            <p>
-                                Upload a PDF to get started
-                            </p>
+                            <div className="recent-file-info">
+                                <p>Loading uploads...</p>
+                            </div>
 
                         </div>
+                    )}
 
-                        <span className="upload-status">
-                            Ready
-                        </span>
 
-                        <button
-                            className="upload-more"
-                            type="button"
-                            aria-label="More options"
-                        >
-                            ⋮
-                        </button>
+                    {!loadingUploads &&
+                        recentUploads.length === 0 && (
+                            <div className="recent-upload-item">
 
-                    </div>
+                                <div className="recent-file-icon pdf-icon">
+                                    PDF
+                                </div>
+
+                                <div className="recent-file-info">
+
+                                    <h3>
+                                        No PDF uploads yet
+                                    </h3>
+
+                                    <p>
+                                        Upload a PDF to get started
+                                    </p>
+
+                                </div>
+
+                                <span className="upload-status">
+                                    Ready
+                                </span>
+
+                            </div>
+                        )}
+
+
+                    {!loadingUploads &&
+                        recentUploads.map((file) => (
+                            <div
+                                className="recent-upload-item"
+                                key={file._id}
+                            >
+
+                                <div className="recent-file-icon pdf-icon">
+                                    PDF
+                                </div>
+
+
+                                <div className="recent-file-info">
+
+                                    <h3>
+                                        {file.originalName ||
+                                            file.title}
+                                    </h3>
+
+                                    <p>
+                                        {formatFileSize(
+                                            file.fileSize
+                                        )}
+                                    </p>
+
+                                </div>
+
+
+                                <span className="upload-status">
+                                    Uploaded
+                                </span>
+
+
+                                <button
+                                    className="upload-more"
+                                    type="button"
+                                    aria-label="Open PDF"
+                                    onClick={() =>
+                                        navigate(
+                                            `/notes/${file._id}`
+                                        )
+                                    }
+                                >
+                                    →
+                                </button>
+
+                            </div>
+                        ))}
 
                 </div>
 

@@ -7,7 +7,7 @@ function getPlainText(html) {
     const temp = document.createElement("div");
     temp.innerHTML = html;
 
-    return (temp.textContent || temp.innerText || "")
+    return temp.textContent
         .replace(/\u00a0/g, " ")
         .replace(/\s+/g, " ")
         .trim();
@@ -18,23 +18,19 @@ function Notes() {
 
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState("all");
+    const [error, setError] = useState("");
 
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
 
     useEffect(() => {
         const fetchNotes = async () => {
             try {
-                setLoading(true);
-                setError("");
-
                 const token = localStorage.getItem("token");
 
                 const response = await fetch(
                     "http://localhost:3000/api/notes",
                     {
-                        method: "GET",
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
@@ -54,7 +50,7 @@ function Notes() {
                 setNotes(data.notes || []);
             } catch (error) {
                 console.error("Failed to fetch notes:", error);
-                setError(error.message || "Failed to fetch notes");
+                setError(error.message);
             } finally {
                 setLoading(false);
             }
@@ -64,27 +60,18 @@ function Notes() {
     }, []);
 
     const filteredNotes = useMemo(() => {
-        const searchText = search.toLowerCase().trim();
-
         return notes.filter((note) => {
-            // Filter by type
             const matchesFilter =
-                filter === "all" ||
-                note.type === filter ||
-                (filter === "note" && !note.type);
+                filter === "all" || note.type === filter;
 
-            // Convert HTML content to normal text
+            const searchText = search.toLowerCase().trim();
+
             const plainContent = getPlainText(note.content);
 
-            // Search title + content
             const matchesSearch =
                 searchText === "" ||
-                (note.title || "")
-                    .toLowerCase()
-                    .includes(searchText) ||
-                plainContent
-                    .toLowerCase()
-                    .includes(searchText);
+                note.title?.toLowerCase().includes(searchText) ||
+                plainContent.toLowerCase().includes(searchText);
 
             return matchesFilter && matchesSearch;
         });
@@ -107,8 +94,7 @@ function Notes() {
                     </h1>
 
                     <p className="sub">
-                        Your personal knowledge shelf — notes, PDFs and
-                        YouTube learning.
+                        Your personal knowledge shelf — notes, PDFs and YouTube learning.
                     </p>
                 </div>
 
@@ -146,8 +132,7 @@ function Notes() {
                 <div className="notes-filters">
 
                     <button
-                        className={`ghost ${filter === "all" ? "active" : ""
-                            }`}
+                        className={`ghost ${filter === "all" ? "active" : ""}`}
                         onClick={() => setFilter("all")}
                         type="button"
                     >
@@ -156,8 +141,7 @@ function Notes() {
 
 
                     <button
-                        className={`ghost ${filter === "note" ? "active" : ""
-                            }`}
+                        className={`ghost ${filter === "note" ? "active" : ""}`}
                         onClick={() => setFilter("note")}
                         type="button"
                     >
@@ -166,28 +150,20 @@ function Notes() {
 
 
                     <button
-                        className="ghost"
+                        className={`ghost ${filter === "pdf" ? "active" : ""}`}
+                        onClick={() => setFilter("pdf")}
                         type="button"
-                        disabled
                     >
                         PDFs
                     </button>
 
 
                     <button
-                        className="ghost"
+                        className={`ghost ${filter === "youtube" ? "active" : ""}`}
+                        onClick={() => setFilter("youtube")}
                         type="button"
-                        disabled
                     >
                         YouTube
-                    </button>
-
-
-                    <button
-                        className="ghost"
-                        type="button"
-                    >
-                        Sort
                     </button>
 
                 </div>
@@ -198,13 +174,13 @@ function Notes() {
             {/* ================= LOADING ================= */}
 
             {loading && (
-                <p>Loading notes...</p>
+                <p>Loading knowledge items...</p>
             )}
 
 
             {/* ================= ERROR ================= */}
 
-            {!loading && error && (
+            {error && (
                 <p className="form-error">
                     {error}
                 </p>
@@ -213,29 +189,38 @@ function Notes() {
 
             {/* ================= NOTES GRID ================= */}
 
-            {!loading && !error && filteredNotes.length > 0 && (
-
+            {!loading && !error && (
                 <div className="notes-grid">
 
-                    {filteredNotes.map((note) => {
+                    {filteredNotes.map((item) => {
 
                         const description =
-                            getPlainText(note.content) ||
-                            "No content";
+                            getPlainText(item.content) ||
+                            (
+                                item.type === "pdf"
+                                    ? "PDF document"
+                                    : item.type === "youtube"
+                                        ? "YouTube learning"
+                                        : "No content"
+                            );
+
+                        const itemType =
+                            item.type === "pdf"
+                                ? "PDF"
+                                : item.type === "youtube"
+                                    ? "YouTube"
+                                    : "Note";
 
                         return (
-
                             <article
                                 className="note-card"
-                                key={note._id}
+                                key={item._id}
                             >
-
-                                {/* CARD TOP */}
 
                                 <div className="note-card-top">
 
                                     <span className="badge">
-                                        Note
+                                        {itemType}
                                     </span>
 
                                     <button
@@ -249,32 +234,24 @@ function Notes() {
                                 </div>
 
 
-                                {/* TITLE */}
-
                                 <h3>
-                                    {note.title || "Untitled Note"}
+                                    {item.title}
                                 </h3>
 
-
-                                {/* DESCRIPTION */}
 
                                 <p className="note-description">
                                     {description}
                                 </p>
 
 
-                                {/* TAG */}
-
                                 <div className="tags">
 
                                     <span className="tag">
-                                        note
+                                        {item.type}
                                     </span>
 
                                 </div>
 
-
-                                {/* FOOTER */}
 
                                 <div className="note-card-footer">
 
@@ -286,9 +263,7 @@ function Notes() {
                                         className="link"
                                         type="button"
                                         onClick={() =>
-                                            navigate(
-                                                `/notes/${note._id}`
-                                            )
+                                            navigate(`/notes/${item._id}`)
                                         }
                                     >
                                         Open →
@@ -297,12 +272,10 @@ function Notes() {
                                 </div>
 
                             </article>
-
                         );
                     })}
 
                 </div>
-
             )}
 
 
@@ -311,20 +284,15 @@ function Notes() {
             {!loading &&
                 !error &&
                 filteredNotes.length === 0 && (
-
                     <p>
-                        {search
-                            ? "No notes match your search."
-                            : "No notes found."}
+                        No {filter === "all" ? "knowledge items" : filter} found.
                     </p>
-
                 )}
 
 
             {/* ================= RESULT COUNT ================= */}
 
             {!loading && !error && (
-
                 <div className="show-more-container">
 
                     <button
@@ -341,23 +309,14 @@ function Notes() {
                     </button>
 
                     <p className="notes-result-count">
-
                         Showing{" "}
-
                         <strong>
                             {filteredNotes.length}
-                        </strong>
-
-                        {" "}of{" "}
-
-                        {notes.length}
-
-                        {" "}knowledge items
-
+                        </strong>{" "}
+                        of {notes.length} knowledge items
                     </p>
 
                 </div>
-
             )}
 
         </section>

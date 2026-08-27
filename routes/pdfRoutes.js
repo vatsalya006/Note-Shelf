@@ -1,9 +1,8 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-
-const Note = require("../models/Note");
 const authMiddleware = require("../middleware/authMiddleware");
+const Note = require("../models/Note");
 
 const router = express.Router();
 
@@ -67,7 +66,7 @@ router.post(
                 });
             }
 
-            // Create PDF knowledge item in MongoDB
+            // Create a PDF knowledge item
             const note = await Note.create({
                 title: req.file.originalname,
                 content: "",
