@@ -2,18 +2,98 @@ import { useRef, useState } from "react";
 
 function Upload() {
     const fileInputRef = useRef(null);
+
     const [selectedFile, setSelectedFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
 
-        if (file) {
-            setSelectedFile(file);
+        setMessage("");
+        setError("");
+
+        if (!file) {
+            setSelectedFile(null);
+            return;
         }
+
+        if (file.type !== "application/pdf") {
+            setSelectedFile(null);
+            setError("Please select a PDF file.");
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            setSelectedFile(null);
+            setError("PDF must be smaller than 10MB.");
+            return;
+        }
+
+        setSelectedFile(file);
     };
 
     const openFilePicker = () => {
         fileInputRef.current?.click();
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) {
+            setError("Please select a PDF file first.");
+            return;
+        }
+
+        try {
+            setUploading(true);
+            setMessage("");
+            setError("");
+
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                throw new Error("You are not logged in.");
+            }
+
+            const formData = new FormData();
+
+            formData.append("pdf", selectedFile);
+
+            const response = await fetch(
+                "http://localhost:3000/api/upload/pdf",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: formData,
+                }
+            );
+
+            const data = await response.json();
+
+            console.log("PDF upload response:", data);
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Failed to upload PDF"
+                );
+            }
+
+            setMessage("PDF uploaded successfully!");
+
+            setSelectedFile(null);
+
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
+
+        } catch (error) {
+            console.error("PDF upload error:", error);
+            setError(error.message);
+        } finally {
+            setUploading(false);
+        }
     };
 
     return (
@@ -47,13 +127,16 @@ function Upload() {
 
                     <h2>
                         Drop files here or{" "}
-                        <span onClick={openFilePicker}>
+                        <span
+                            onClick={openFilePicker}
+                            style={{ cursor: "pointer" }}
+                        >
                             click to browse
                         </span>
                     </h2>
 
                     <p>
-                        Upload PDFs, documents, and text files up to 50MB.
+                        Upload PDF files up to 10MB.
                     </p>
 
 
@@ -69,17 +152,71 @@ function Upload() {
                             ref={fileInputRef}
                             type="file"
                             hidden
-                            accept=".pdf,.doc,.docx,.txt,.md,.csv"
+                            accept=".pdf,application/pdf"
                             onChange={handleFileChange}
                         />
 
                     </label>
 
 
+                    {/* ================= SELECTED FILE ================= */}
+
                     {selectedFile && (
                         <div className="selected-file">
-                            Selected: <strong>{selectedFile.name}</strong>
+
+                            Selected:{" "}
+
+                            <strong>
+                                {selectedFile.name}
+                            </strong>
+
+                            <br />
+
+                            <span>
+                                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                            </span>
+
                         </div>
+                    )}
+
+
+                    {/* ================= MESSAGES ================= */}
+
+                    {error && (
+                        <p className="form-error">
+                            {error}
+                        </p>
+                    )}
+
+                    {message && (
+                        <p
+                            style={{
+                                marginTop: "16px",
+                                color: "#8b5cf6",
+                                fontWeight: "600",
+                            }}
+                        >
+                            {message}
+                        </p>
+                    )}
+
+
+                    {/* ================= UPLOAD BUTTON ================= */}
+
+                    {selectedFile && (
+                        <button
+                            className="primary"
+                            type="button"
+                            onClick={handleUpload}
+                            disabled={uploading}
+                            style={{
+                                marginTop: "20px",
+                            }}
+                        >
+                            {uploading
+                                ? "Uploading..."
+                                : "Upload PDF"}
+                        </button>
                     )}
 
 
@@ -108,7 +245,7 @@ function Upload() {
                         <button
                             className="upload-source"
                             type="button"
-                            onClick={openFilePicker}
+                            disabled
                         >
                             <span className="source-icon doc-icon">
                                 W
@@ -121,7 +258,7 @@ function Upload() {
                         <button
                             className="upload-source"
                             type="button"
-                            onClick={openFilePicker}
+                            disabled
                         >
                             <span className="source-icon text-icon">
                                 TXT
@@ -134,7 +271,7 @@ function Upload() {
                         <button
                             className="upload-source"
                             type="button"
-                            onClick={openFilePicker}
+                            disabled
                         >
                             <span className="source-icon csv-icon">
                                 CSV
@@ -179,7 +316,7 @@ function Upload() {
 
                     <div>
                         <h3>PDF Files</h3>
-                        <p>Best for documents</p>
+                        <p>Available now</p>
                         <span>.pdf</span>
                     </div>
 
@@ -194,7 +331,7 @@ function Upload() {
 
                     <div>
                         <h3>Word Documents</h3>
-                        <p>Editable documents</p>
+                        <p>Coming soon</p>
                         <span>.docx, .doc</span>
                     </div>
 
@@ -209,7 +346,7 @@ function Upload() {
 
                     <div>
                         <h3>Text Files</h3>
-                        <p>Plain text notes</p>
+                        <p>Coming soon</p>
                         <span>.txt, .md</span>
                     </div>
 
@@ -224,7 +361,7 @@ function Upload() {
 
                     <div>
                         <h3>CSV Files</h3>
-                        <p>Structured data</p>
+                        <p>Coming soon</p>
                         <span>.csv</span>
                     </div>
 
@@ -272,116 +409,17 @@ function Upload() {
                         <div className="recent-file-info">
 
                             <h3>
-                                DBMS Complete Notes.pdf
+                                PDF uploads will appear here
                             </h3>
 
                             <p>
-                                2.1 MB · Uploaded today
+                                Upload a PDF to get started
                             </p>
 
                         </div>
 
                         <span className="upload-status">
-                            Processed
-                        </span>
-
-                        <button
-                            className="upload-more"
-                            type="button"
-                            aria-label="More options"
-                        >
-                            ⋮
-                        </button>
-
-                    </div>
-
-
-                    <div className="recent-upload-item">
-
-                        <div className="recent-file-icon doc-icon">
-                            W
-                        </div>
-
-                        <div className="recent-file-info">
-
-                            <h3>
-                                System Design Notes.docx
-                            </h3>
-
-                            <p>
-                                1.6 MB · Uploaded yesterday
-                            </p>
-
-                        </div>
-
-                        <span className="upload-status">
-                            Processed
-                        </span>
-
-                        <button
-                            className="upload-more"
-                            type="button"
-                            aria-label="More options"
-                        >
-                            ⋮
-                        </button>
-
-                    </div>
-
-
-                    <div className="recent-upload-item">
-
-                        <div className="recent-file-icon text-icon">
-                            TXT
-                        </div>
-
-                        <div className="recent-file-info">
-
-                            <h3>
-                                JavaScript Reference.md
-                            </h3>
-
-                            <p>
-                                890 KB · Uploaded 2 days ago
-                            </p>
-
-                        </div>
-
-                        <span className="upload-status">
-                            Processed
-                        </span>
-
-                        <button
-                            className="upload-more"
-                            type="button"
-                            aria-label="More options"
-                        >
-                            ⋮
-                        </button>
-
-                    </div>
-
-
-                    <div className="recent-upload-item">
-
-                        <div className="recent-file-icon pdf-icon">
-                            PDF
-                        </div>
-
-                        <div className="recent-file-info">
-
-                            <h3>
-                                Computer Networks.pdf
-                            </h3>
-
-                            <p>
-                                3.2 MB · Uploaded 3 days ago
-                            </p>
-
-                        </div>
-
-                        <span className="upload-status">
-                            Processed
+                            Ready
                         </span>
 
                         <button
