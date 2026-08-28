@@ -6,6 +6,7 @@ const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const noteRoutes = require("./routes/noteRoutes");
 const pdfRoutes = require("./routes/pdfRoutes");
+const youtubeRoutes = require("./routes/youtubeRoutes");
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/upload/pdf", pdfRoutes);
+app.use("/api/youtube", youtubeRoutes);
 
 app.get("/api/protected", authMiddleware, (req, res) => {
     res.json({

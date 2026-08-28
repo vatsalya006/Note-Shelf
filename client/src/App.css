@@ -6719,3 +6719,60 @@ h3 {
 .note-content a {
   color: #9b5cff;
 }
+
+/* YouTube Upload Inputs */
+.youtube-upload input {
+  background: #11101a;
+  color: #f5f3ff;
+  border: 1px solid #30244d;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 16px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.youtube-upload input::placeholder {
+  color: #77728f;
+}
+
+.youtube-upload input:focus {
+  border-color: #8b3dff;
+  box-shadow: 0 0 0 3px rgba(139, 61, 255, 0.15);
+}
+
+.youtube-upload input:hover {
+  border-color: #55358a;
+}
+
+.youtube-input {
+  width: 100%;
+  max-width: 600px;
+  padding: 14px 16px;
+  margin-top: 12px;
+
+  background: #11101a;
+  color: #f5f3ff;
+
+  border: 1px solid #30244d;
+  border-radius: 10px;
+
+  font-size: 16px;
+  outline: none;
+
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.youtube-input::placeholder {
+  color: #77728f;
+}
+
+.youtube-input:focus {
+  border-color: #8b3dff;
+  box-shadow: 0 0 0 3px rgba(139, 61, 255, 0.15);
+}
+
+.youtube-input:hover {
+  border-color: #55358a;
+}

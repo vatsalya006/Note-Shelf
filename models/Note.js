@@ -18,6 +18,11 @@ const noteSchema = new mongoose.Schema(
             default: "note"
         },
 
+        youtubeUrl: {
+            type: String,
+            default: null
+        },
+
         fileName: {
             type: String,
             default: null
