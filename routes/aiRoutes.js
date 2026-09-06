@@ -1,6 +1,7 @@
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
 const { generateAIResponse } = require("../services/geminiService");
+const Note = require("../models/Note");
 
 const router = express.Router();
 
@@ -22,5 +23,60 @@ router.get("/test", authMiddleware, async (req, res) => {
         });
     }
 });
+
+router.post("/summary/:id", authMiddleware, async (req, res) => {
+    try {
+        const note = await Note.findOne({
+            _id: req.params.id,
+            user: req.user
+        });
+
+        if (!note) {
+            return res.status(404).json({
+                message: "Note not found"
+            });
+        }
+
+        if (!note.content || !note.content.trim()) {
+            return res.status(400).json({
+                message: "This note has no content to summarize"
+            });
+        }
+
+        const prompt = `
+You are an AI assistant inside a personal knowledge management app called Note Shelf.
+
+Summarize the following note clearly and concisely.
+
+Rules:
+- Keep the important ideas.
+- Remove unnecessary repetition.
+- Use simple language.
+- Do not add information that is not present in the note.
+- Format the summary using short paragraphs or bullet points when appropriate.
+
+Note title:
+${note.title}
+
+Note content:
+${note.content}
+`;
+
+        const summary = await generateAIResponse(prompt);
+
+        res.json({
+            message: "Summary generated successfully",
+            summary: summary
+        });
+
+    } catch (error) {
+        console.error("AI summary error:", error);
+
+        res.status(500).json({
+            message: "Failed to generate summary"
+        });
+    }
+});
+
 
 module.exports = router;
