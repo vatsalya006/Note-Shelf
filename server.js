@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const aiRoutes = require("./routes/aiRoutes");
 const User = require("./models/User");
 const Note = require("./models/Note");
 const authRoutes = require("./routes/authRoutes");
@@ -29,6 +30,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/upload/pdf", pdfRoutes);
 app.use("/api/youtube", youtubeRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.get("/api/protected", authMiddleware, (req, res) => {
     res.json({
