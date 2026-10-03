@@ -1,6 +1,6 @@
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
-const { splitIntoSentences } = require("../services/chunkingService");
+const { cosineSimilarity } = require("../services/chunkingService");
 const {
     generateAIResponse,
     generateEmbedding
@@ -9,21 +9,58 @@ const Note = require("../models/Note");
 
 const router = express.Router();
 
-router.get("/test", authMiddleware, async (req, res) => {
+router.get("/threshold-test", authMiddleware, async (req, res) => {
     try {
-        const response = await generateAIResponse(
-            "Explain what an AI Second Brain is in 2 simple sentences."
-        );
+        const pairs = [
+            {
+                name: "Very Similar",
+                a: "React is a JavaScript library used to build user interfaces.",
+                b: "React is a JavaScript library for creating user interfaces."
+            },
+            {
+                name: "Related",
+                a: "React components can receive data through props.",
+                b: "Props allow data to be passed from a parent component to a child component."
+            },
+            {
+                name: "Different",
+                a: "React is used to build web interfaces.",
+                b: "MongoDB is a NoSQL database that stores documents."
+            },
+            {
+                name: "Completely Different",
+                a: "React components can manage application state.",
+                b: "The weather forecast predicts heavy rainfall tomorrow."
+            }
+        ];
+
+        const results = [];
+
+        for (const pair of pairs) {
+            const embeddingA = await generateEmbedding(pair.a);
+            const embeddingB = await generateEmbedding(pair.b);
+
+            const similarity = cosineSimilarity(
+                embeddingA,
+                embeddingB
+            );
+
+            results.push({
+                name: pair.name,
+                similarity
+            });
+        }
 
         res.json({
-            message: "Gemini AI is working!",
-            response: response
+            message: "Threshold test completed",
+            results
         });
+
     } catch (error) {
-        console.error("AI test error:", error);
+        console.error("Threshold test error:", error);
 
         res.status(500).json({
-            message: "Gemini AI test failed"
+            message: "Threshold test failed"
         });
     }
 });

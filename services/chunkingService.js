@@ -32,7 +32,54 @@ function cosineSimilarity(vectorA, vectorB) {
 
     return dotProduct / (Math.sqrt(magnitudeA) * Math.sqrt(magnitudeB));
 }
+function createSemanticChunks(
+    sentences,
+    embeddings,
+    threshold = 0.85,
+    overlapPercentage = 0.15
+) {
+    if (sentences.length !== embeddings.length) {
+        throw new Error("Sentences and embeddings must have the same length");
+    }
+
+    if (sentences.length === 0) {
+        return [];
+    }
+
+    const chunks = [];
+    let currentChunk = [sentences[0]];
+
+    for (let i = 1; i < sentences.length; i++) {
+        const similarity = cosineSimilarity(
+            embeddings[i - 1],
+            embeddings[i]
+        );
+
+        if (similarity >= threshold) {
+            currentChunk.push(sentences[i]);
+        } else {
+            chunks.push(currentChunk.join(" "));
+
+            const overlapCount = Math.max(
+                1,
+                Math.ceil(currentChunk.length * overlapPercentage)
+            );
+
+            const overlapSentences = currentChunk.slice(-overlapCount);
+
+            currentChunk = [
+                ...overlapSentences,
+                sentences[i]
+            ];
+        }
+    }
+
+    chunks.push(currentChunk.join(" "));
+
+    return chunks;
+}
 module.exports = {
     splitIntoSentences,
     cosineSimilarity,
+    createSemanticChunks,
 };
