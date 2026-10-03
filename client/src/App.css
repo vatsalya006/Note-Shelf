@@ -6776,3 +6776,11 @@ h3 {
 .youtube-input:hover {
   border-color: #55358a;
 }
+
+/* Limit note preview text */
+.note-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

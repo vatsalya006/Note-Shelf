@@ -42,7 +42,25 @@ const noteSchema = new mongoose.Schema(
             type: Number,
             default: null
         },
-
+        chunks: {
+            type: [
+                {
+                    text: {
+                        type: String,
+                        required: true
+                    },
+                    startTime: {
+                        type: Number,
+                        default: null
+                    },
+                    endTime: {
+                        type: Number,
+                        default: null
+                    }
+                }
+            ],
+            default: []
+        },
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

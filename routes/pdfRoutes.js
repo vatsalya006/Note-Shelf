@@ -1,14 +1,20 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+const { PDFParse } = require("pdf-parse");
 const authMiddleware = require("../middleware/authMiddleware");
 const Note = require("../models/Note");
+const {
+    splitIntoParagraphs,
+    createPdfAwareChunks
+} = require("../services/chunkingService");
+
+const {
+    generateEmbedding
+} = require("../services/geminiService");
 
 const router = express.Router();
-
-// =========================
-// MULTER STORAGE
-// =========================
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -26,10 +32,6 @@ const storage = multer.diskStorage({
     },
 });
 
-// =========================
-// PDF FILE FILTER
-// =========================
-
 const fileFilter = (req, file, cb) => {
     if (file.mimetype === "application/pdf") {
         cb(null, true);
@@ -38,10 +40,6 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// =========================
-// MULTER CONFIG
-// =========================
-
 const upload = multer({
     storage,
     fileFilter,
@@ -49,10 +47,6 @@ const upload = multer({
         fileSize: 10 * 1024 * 1024,
     },
 });
-
-// =========================
-// UPLOAD PDF
-// =========================
 
 router.post(
     "/",
@@ -65,11 +59,34 @@ router.post(
                     message: "Please upload a PDF file",
                 });
             }
+            const pdfBuffer = fs.readFileSync(req.file.path);
+            const parser = new PDFParse({ data: pdfBuffer });
+            const pdfData = await parser.getText();
+
+            const extractedText = pdfData.text.trim();
+            const paragraphs = splitIntoParagraphs(extractedText);
+
+            // Generate embedding for every paragraph
+            const paragraphEmbeddings = await Promise.all(
+                paragraphs.map(paragraph => generateEmbedding(paragraph))
+            );
+
+            // Create semantic PDF chunks
+            const chunks = createPdfAwareChunks(
+                paragraphs,
+                paragraphEmbeddings
+            ).map(chunk => ({
+                text: chunk,
+                startTime: null,
+                endTime: null
+            }));
+            await parser.destroy();
 
             // Create a PDF knowledge item
             const note = await Note.create({
                 title: req.file.originalname,
-                content: "",
+                content: extractedText,
+                chunks,
                 type: "pdf",
 
                 fileName: req.file.filename,
