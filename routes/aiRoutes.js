@@ -1,6 +1,9 @@
 const express = require("express");
-const authMiddleware = require("../middleware/authMiddleware");
-const { generateAIResponse } = require("../services/geminiService");
+const { splitIntoSentences } = require("../services/chunkingService");
+const {
+    generateAIResponse,
+    generateEmbedding
+} = require("../services/geminiService");
 const Note = require("../models/Note");
 
 const router = express.Router();
@@ -20,6 +23,27 @@ router.get("/test", authMiddleware, async (req, res) => {
 
         res.status(500).json({
             message: "Gemini AI test failed"
+        });
+    }
+});
+
+router.get("/embedding-test", authMiddleware, async (req, res) => {
+    try {
+        const embedding = await generateEmbedding(
+            "React is a JavaScript library used to build user interfaces."
+        );
+
+        res.json({
+            message: "Embedding generation is working!",
+            dimensions: embedding.length,
+            firstValues: embedding.slice(0, 5)
+        });
+
+    } catch (error) {
+        console.error("Embedding test error:", error);
+
+        res.status(500).json({
+            message: "Embedding generation failed"
         });
     }
 });

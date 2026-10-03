@@ -17,8 +17,12 @@ function NoteDetail() {
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
 
+    const [summarizing, setSummarizing] = useState(false);
+    const [summary, setSummary] = useState("");
+
     const [editing, setEditing] = useState(false);
     const [error, setError] = useState("");
+    const [summaryError, setSummaryError] = useState("");
 
     const modules = {
         toolbar: [
@@ -77,6 +81,46 @@ function NoteDetail() {
     }, [id]);
 
     // =========================
+    // GENERATE AI SUMMARY
+    // =========================
+
+    const handleGenerateSummary = async () => {
+        try {
+            setSummarizing(true);
+            setSummaryError("");
+            setSummary("");
+
+            const token = localStorage.getItem("token");
+
+            const response = await fetch(
+                `http://localhost:3000/api/ai/summary/${id}`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Failed to generate summary"
+                );
+            }
+
+            setSummary(data.summary);
+        } catch (error) {
+            console.error("Failed to generate AI summary:", error);
+
+            setSummaryError(error.message);
+        } finally {
+            setSummarizing(false);
+        }
+    };
+
+    // =========================
     // SAVE NOTE
     // =========================
 
@@ -129,6 +173,9 @@ function NoteDetail() {
 
             setTitle(data.note.title || "");
             setContent(data.note.content || "");
+
+            // Clear old summary because note content changed
+            setSummary("");
 
             setEditing(false);
         } catch (error) {
@@ -356,6 +403,55 @@ function NoteDetail() {
                         </span>
 
                     </div>
+
+
+                    {/* =========================
+                        AI SUMMARY
+                    ========================= */}
+
+                    {!editing && (
+                        <div className="ai-summary-section">
+
+                            <div className="ai-summary-header">
+
+                                <div>
+                                    <h2>✨ AI Summary</h2>
+
+                                    <p>
+                                        Let Gemini turn this note into
+                                        a concise summary.
+                                    </p>
+                                </div>
+
+                                <button
+                                    className="primary"
+                                    type="button"
+                                    onClick={handleGenerateSummary}
+                                    disabled={summarizing}
+                                >
+                                    {summarizing
+                                        ? "Generating..."
+                                        : "✨ Generate Summary"}
+                                </button>
+
+                            </div>
+
+
+                            {summaryError && (
+                                <p className="form-error">
+                                    {summaryError}
+                                </p>
+                            )}
+
+
+                            {summary && (
+                                <div className="ai-summary-content">
+                                    {summary}
+                                </div>
+                            )}
+
+                        </div>
+                    )}
 
 
                     {/* =========================

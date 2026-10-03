@@ -17,7 +17,24 @@ async function generateAIResponse(prompt) {
         throw new Error("Failed to generate AI response");
     }
 }
+async function generateEmbedding(text) {
+    try {
+        const response = await ai.models.embedContent({
+            model: "gemini-embedding-001",
+            contents: text,
+            config: {
+                taskType: "SEMANTIC_SIMILARITY",
+            },
+        });
+
+        return response.embeddings[0].values;
+    } catch (error) {
+        console.error("Embedding generation error:", error);
+        throw new Error("Failed to generate embedding");
+    }
+}
 
 module.exports = {
     generateAIResponse,
+    generateEmbedding,
 };
