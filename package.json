@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/vatsalya006/Notefy#readme",
   "dependencies": {
-    "@google/genai": "^2.21.0",
+    "@google/genai": "^2.27.0",
+    "@pinecone-database/pinecone": "^9.0.0",
     "@tiptap/pm": "^3.30.5",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",

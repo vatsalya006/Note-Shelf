@@ -8,6 +8,8 @@ const authMiddleware = require("./middleware/authMiddleware");
 const noteRoutes = require("./routes/noteRoutes");
 const pdfRoutes = require("./routes/pdfRoutes");
 const youtubeRoutes = require("./routes/youtubeRoutes");
+const { generateEmbedding } = require("./services/embeddingService");
+const { storeEmbedding, searchSimilar } = require("./services/pineconeService");
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -39,6 +41,29 @@ app.get("/api/protected", authMiddleware, (req, res) => {
     });
 });
 
+app.get("/test-search", async (req, res) => {
+  try {
+    const query = req.query.q || "programming language";
+
+    const queryVector = await generateEmbedding(query);
+
+    const results = await searchSimilar(queryVector, 5);
+
+    res.json({
+      success: true,
+      query,
+      results,
+    });
+  } catch (error) {
+    console.error("Semantic search error:", error);
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log("MongoDB connected successfully");
@@ -46,7 +71,55 @@ mongoose.connect(process.env.MONGO_URI)
     .catch((error) => {
         console.log("MongoDB connection failed:", error);
     });
+app.get("/test-embedding", async (req, res) => {
+  try {
+    const vector = await generateEmbedding(
+      "JavaScript is a programming language."
+    );
 
+    res.json({
+      success: true,
+      dimensions: vector.length,
+      firstFiveValues: vector.slice(0, 5),
+    });
+  } catch (error) {
+    console.error("Embedding test error:", error);
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+app.get("/test-pinecone", async (req, res) => {
+  try {
+    const vector = await generateEmbedding(
+      "JavaScript is a programming language."
+    );
+
+    await storeEmbedding(
+      "test-javascript-1",
+      vector,
+      {
+        text: "JavaScript is a programming language.",
+        source: "phase4-test",
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Embedding stored in Pinecone",
+      dimensions: vector.length,
+    });
+  } catch (error) {
+    console.error("Pinecone test error:", error);
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
 app.get("/", (req, res) => {
     res.json({
     message: "AI Second Brain Backend is running!"
