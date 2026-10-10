@@ -41,13 +41,17 @@ app.get("/api/protected", authMiddleware, (req, res) => {
     });
 });
 
-app.get("/test-search", async (req, res) => {
+app.get("/test-search", authMiddleware, async (req, res) => {
   try {
     const query = req.query.q || "programming language";
 
     const queryVector = await generateEmbedding(query);
 
-    const results = await searchSimilar(queryVector, 5);
+    const results = await searchSimilar(
+      queryVector,
+      req.user,
+      5
+    );
 
     res.json({
       success: true,

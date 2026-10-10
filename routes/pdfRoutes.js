@@ -11,6 +11,10 @@ const {
 } = require("../services/chunkingService");
 
 const {
+    storeChunkEmbedding
+} = require("../services/pineconeService");
+
+const {
     generateEmbedding
 } = require("../services/geminiService");
 
@@ -96,6 +100,18 @@ router.post(
 
                 user: req.user,
             });
+
+            for (let i = 0; i < chunks.length; i++) {
+                const chunkVector = await generateEmbedding(chunks[i].text);
+
+                await storeChunkEmbedding(
+                note._id,
+                req.user,
+                i,
+                chunkVector,
+                chunks[i]
+               );
+            }
 
             res.status(201).json({
                 message: "PDF uploaded successfully",

@@ -24,6 +24,7 @@ async function generateEmbedding(text) {
             contents: text,
             config: {
                 taskType: "SEMANTIC_SIMILARITY",
+                outputDimensionality: 768,
             },
         });
 
