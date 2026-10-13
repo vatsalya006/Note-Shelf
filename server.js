@@ -6,9 +6,11 @@ const Note = require("./models/Note");
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const noteRoutes = require("./routes/noteRoutes");
+const { keywordSearch } = require("./services/keywordSearchService");
 const pdfRoutes = require("./routes/pdfRoutes");
 const youtubeRoutes = require("./routes/youtubeRoutes");
 const { generateEmbedding } = require("./services/embeddingService");
+const { hybridSearch } = require("./services/hybridSearchService");
 const { storeEmbedding, searchSimilar } = require("./services/pineconeService");
 
 const express = require("express");
@@ -39,6 +41,59 @@ app.get("/api/protected", authMiddleware, (req, res) => {
         message: "You accessed a protected route!",
         userId: req.user
     });
+});
+
+app.get("/test-keyword-search", authMiddleware, async (req, res) => {
+    try {
+        const query = req.query.q || "";
+
+        const results = await keywordSearch(
+            query,
+            req.user,
+            10
+        );
+
+        res.json({
+            success: true,
+            query,
+            count: results.length,
+            results,
+        });
+    } catch (error) {
+        console.error("Keyword search error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Keyword search failed",
+        });
+    }
+});
+
+app.get("/test-hybrid-search", authMiddleware, async (req, res) => {
+    try {
+        const query = req.query.q || "";
+
+        const results = await hybridSearch(
+            query,
+            req.user,
+            10
+        );
+
+        res.json({
+            success: true,
+            query,
+            count: results.length,
+            results,
+        });
+    } catch (error) {
+        console.error("Hybrid search error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Hybrid search failed",
+            error: error.message,
+        });
+    }
 });
 
 app.get("/test-search", authMiddleware, async (req, res) => {
