@@ -1,6 +1,7 @@
 const { generateEmbedding } = require("./geminiService");
 const { searchSimilar } = require("./pineconeService");
 const { keywordSearch } = require("./keywordSearchService");
+const { rerankResults } = require("./rerankingService");
 
 async function hybridSearch(query, userId, limit = 10) {
     if (!query || !query.trim()) {
@@ -9,18 +10,19 @@ async function hybridSearch(query, userId, limit = 10) {
 
     const k = 60;
 
-    // Run semantic and keyword searches in parallel
+    // Generate query embedding
     const queryVector = await generateEmbedding(query);
 
+    // Run semantic and keyword searches in parallel
     const [semanticResults, keywordResults] = await Promise.all([
-        searchSimilar(queryVector, userId, limit),
-        keywordSearch(query, userId, limit),
+        searchSimilar(queryVector, userId, 20),
+        keywordSearch(query, userId, 20),
     ]);
 
     const scores = new Map();
     const documents = new Map();
 
-    // Process semantic results, keeping only the highest-ranked chunk per note
+    // Deduplicate semantic results by noteId
     const seenSemanticNoteIds = new Set();
 
     for (const result of semanticResults) {
@@ -43,14 +45,14 @@ async function hybridSearch(query, userId, limit = 10) {
         });
     }
 
-    // Process keyword results
+    // Add keyword rankings
     keywordResults.forEach((result, index) => {
         const noteId = result._id.toString();
-        const rrfContribution = 1 / (k + index + 1);
+        const contribution = 1 / (k + index + 1);
 
         scores.set(
             noteId,
-            (scores.get(noteId) || 0) + rrfContribution
+            (scores.get(noteId) || 0) + contribution
         );
 
         documents.set(noteId, {
@@ -62,15 +64,24 @@ async function hybridSearch(query, userId, limit = 10) {
         });
     });
 
-    // Sort by combined RRF score
-    return Array.from(scores.entries())
+    // Sort by RRF score and take the top 20 candidates
+    const fusedResults = Array.from(scores.entries())
         .map(([noteId, rrfScore]) => ({
             ...documents.get(noteId),
             noteId,
             rrfScore,
         }))
         .sort((a, b) => b.rrfScore - a.rrfScore)
-        .slice(0, limit);
+        .slice(0, 20);
+
+    // Rerank the fused candidates with Gemini
+    const rerankedResults = await rerankResults(
+        query,
+        fusedResults,
+        limit
+    );
+
+    return rerankedResults;
 }
 
 module.exports = {
