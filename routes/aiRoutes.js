@@ -1,5 +1,6 @@
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
+const { retrieveRelevantNotes } = require("../services/retrievalService");
 const { cosineSimilarity } = require("../services/chunkingService");
 const {
     generateAIResponse,
@@ -119,5 +120,37 @@ ${note.content}
     }
 });
 
+// AI Search
+router.get("/search", authMiddleware, async (req, res) => {
+    try {
+        const { q } = req.query;
+
+        if (!q || !q.trim()) {
+            return res.status(400).json({
+                message: "Please provide a search query"
+            });
+        }
+
+        const results = await retrieveRelevantNotes(
+            q,
+            req.user,
+            5
+        );
+
+        res.json({
+            message: "AI search completed successfully",
+            query: q,
+            totalResults: results.length,
+            results
+        });
+
+    } catch (error) {
+        console.error("AI search error:", error);
+
+        res.status(500).json({
+            message: "AI search failed"
+        });
+    }
+});
 
 module.exports = router;
