@@ -1,7 +1,9 @@
 const { generateEmbedding } = require("./geminiService");
 const { searchSimilar } = require("./pineconeService");
 const { keywordSearch } = require("./keywordSearchService");
-const { rerankResults } = require("./rerankingService");
+const {
+    cohereRerankResults,
+} = require("./cohereRerankingService");
 
 async function hybridSearch(query, userId, limit = 10) {
     if (!query || !query.trim()) {
@@ -10,7 +12,7 @@ async function hybridSearch(query, userId, limit = 10) {
 
     const k = 60;
 
-    // Generate query embedding
+    // Generate the query embedding
     const queryVector = await generateEmbedding(query);
 
     // Run semantic and keyword searches in parallel
@@ -45,7 +47,7 @@ async function hybridSearch(query, userId, limit = 10) {
         });
     }
 
-    // Add keyword rankings
+    // Add keyword-search rankings using Reciprocal Rank Fusion
     keywordResults.forEach((result, index) => {
         const noteId = result._id.toString();
         const contribution = 1 / (k + index + 1);
@@ -64,7 +66,7 @@ async function hybridSearch(query, userId, limit = 10) {
         });
     });
 
-    // Sort by RRF score and take the top 20 candidates
+    // Fuse rankings and select candidates for reranking
     const fusedResults = Array.from(scores.entries())
         .map(([noteId, rrfScore]) => ({
             ...documents.get(noteId),
@@ -74,8 +76,8 @@ async function hybridSearch(query, userId, limit = 10) {
         .sort((a, b) => b.rrfScore - a.rrfScore)
         .slice(0, 20);
 
-    // Rerank the fused candidates with Gemini
-    const rerankedResults = await rerankResults(
+    // Rerank using Cohere
+    const rerankedResults = await cohereRerankResults(
         query,
         fusedResults,
         limit
