@@ -15,6 +15,9 @@ const { hybridSearch } = require("./services/hybridSearchService");
 const {
     cohereRerankResults,
 } = require("./services/cohereRerankingService");
+const {
+    runRerankingBenchmark,
+} = require("./services/rerankingBenchmarkService");
 const { storeEmbedding, searchSimilar } = require("./services/pineconeService");
 
 const express = require("express");
@@ -46,7 +49,25 @@ app.get("/api/protected", authMiddleware, (req, res) => {
         userId: req.user
     });
 });
+app.get("/test-reranking-benchmark", authMiddleware, async (req, res) => {
+    try {
+        const benchmark = await runRerankingBenchmark();
 
+        res.json({
+            success: true,
+            summary: benchmark.summary,
+            results: benchmark.results,
+        });
+    } catch (error) {
+        console.error("Reranking benchmark error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Benchmark failed",
+            error: error.message,
+        });
+    }
+});
 app.post("/test-cohere-reranking", authMiddleware, async (req, res) => {
     try {
         const { query, results } = req.body;
