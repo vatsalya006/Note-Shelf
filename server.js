@@ -1,33 +1,15 @@
 require("dotenv").config();
 
 const aiRoutes = require("./routes/aiRoutes");
-const User = require("./models/User");
-const Note = require("./models/Note");
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const noteRoutes = require("./routes/noteRoutes");
-const { keywordSearch } = require("./services/keywordSearchService");
 const pdfRoutes = require("./routes/pdfRoutes");
-const { rerankResults } = require("./services/rerankingService");
 const youtubeRoutes = require("./routes/youtubeRoutes");
-const { generateEmbedding } = require("./services/embeddingService");
-const { hybridSearch } = require("./services/hybridSearchService");
-const {
-    cohereRerankResults,
-} = require("./services/cohereRerankingService");
-const {
-    runRerankingBenchmark,
-} = require("./services/rerankingBenchmarkService");
-const { storeEmbedding, searchSimilar } = require("./services/pineconeService");
 
 const express = require("express");
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
 const cors = require("cors");
-
-const hashedPassword = bcrypt.hashSync("mypassword123", 10);
-
-console.log("Hashed password:", hashedPassword);
 
 const app = express();
 
@@ -49,156 +31,6 @@ app.get("/api/protected", authMiddleware, (req, res) => {
         userId: req.user
     });
 });
-app.get("/test-reranking-benchmark", authMiddleware, async (req, res) => {
-    try {
-        const benchmark = await runRerankingBenchmark();
-
-        res.json({
-            success: true,
-            summary: benchmark.summary,
-            results: benchmark.results,
-        });
-    } catch (error) {
-        console.error("Reranking benchmark error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: "Benchmark failed",
-            error: error.message,
-        });
-    }
-});
-app.post("/test-cohere-reranking", authMiddleware, async (req, res) => {
-    try {
-        const { query, results } = req.body;
-
-        const rerankedResults = await cohereRerankResults(
-            query,
-            results,
-            5
-        );
-
-        res.json({
-            success: true,
-            query,
-            count: rerankedResults.length,
-            results: rerankedResults,
-        });
-    } catch (error) {
-        console.error("Cohere reranking test error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
-    }
-});
-
-app.post("/test-reranking", authMiddleware, async (req, res) => {
-    try {
-        const { query, results } = req.body;
-
-        const rerankedResults = await rerankResults(
-            query,
-            results,
-            5
-        );
-
-        res.json({
-            success: true,
-            query,
-            count: rerankedResults.length,
-            results: rerankedResults,
-        });
-    } catch (error) {
-        console.error("Reranking test error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: "Reranking failed",
-        });
-    }
-});
-
-app.get("/test-keyword-search", authMiddleware, async (req, res) => {
-    try {
-        const query = req.query.q || "";
-
-        const results = await keywordSearch(
-            query,
-            req.user,
-            10
-        );
-
-        res.json({
-            success: true,
-            query,
-            count: results.length,
-            results,
-        });
-    } catch (error) {
-        console.error("Keyword search error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: "Keyword search failed",
-        });
-    }
-});
-
-app.get("/test-hybrid-search", authMiddleware, async (req, res) => {
-    try {
-        const query = req.query.q || "";
-
-        const results = await hybridSearch(
-            query,
-            req.user,
-            10
-        );
-
-        res.json({
-            success: true,
-            query,
-            count: results.length,
-            results,
-        });
-    } catch (error) {
-        console.error("Hybrid search error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: "Hybrid search failed",
-            error: error.message,
-        });
-    }
-});
-
-app.get("/test-search", authMiddleware, async (req, res) => {
-  try {
-    const query = req.query.q || "programming language";
-
-    const queryVector = await generateEmbedding(query);
-
-    const results = await searchSimilar(
-      queryVector,
-      req.user,
-      5
-    );
-
-    res.json({
-      success: true,
-      query,
-      results,
-    });
-  } catch (error) {
-    console.error("Semantic search error:", error);
-
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
@@ -207,55 +39,7 @@ mongoose.connect(process.env.MONGO_URI)
     .catch((error) => {
         console.log("MongoDB connection failed:", error);
     });
-app.get("/test-embedding", async (req, res) => {
-  try {
-    const vector = await generateEmbedding(
-      "JavaScript is a programming language."
-    );
 
-    res.json({
-      success: true,
-      dimensions: vector.length,
-      firstFiveValues: vector.slice(0, 5),
-    });
-  } catch (error) {
-    console.error("Embedding test error:", error);
-
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-app.get("/test-pinecone", async (req, res) => {
-  try {
-    const vector = await generateEmbedding(
-      "JavaScript is a programming language."
-    );
-
-    await storeEmbedding(
-      "test-javascript-1",
-      vector,
-      {
-        text: "JavaScript is a programming language.",
-        source: "phase4-test",
-      }
-    );
-
-    res.json({
-      success: true,
-      message: "Embedding stored in Pinecone",
-      dimensions: vector.length,
-    });
-  } catch (error) {
-    console.error("Pinecone test error:", error);
-
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
 app.get("/", (req, res) => {
     res.json({
     message: "AI Second Brain Backend is running!"
@@ -276,49 +60,4 @@ app.post("/api/test", (req, res) => {
 });
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
-});
-
-app.get("/api/users", async (req, res) => {
-    const users = await User.find();
-
-    res.json(users);
-});
-
-app.get("/api/test-user", async (req, res) => {
-    const user = await User.create({
-        name: "Test User",
-        email: "test@example.com",
-        password: "test123"
-    });
-
-    res.json(user);
-});
-
-app.get("/api/user", async (req, res) => {
-    const user = await User.findOne({
-        email: "test@example.com"
-    });
-
-    res.json(user);
-});
-
-app.get("/api/update-user", async (req, res) => {
-    const user = await User.findOneAndUpdate(
-        { email: "test@example.com" },
-        { name: "Updated User" },
-        { new: true }
-    );
-
-    res.json(user);
-});
-
-app.get("/api/delete-user", async (req, res) => {
-    const user = await User.findOneAndDelete({
-        email: "test@example.com"
-    });
-
-    res.json({
-        message: "User deleted",
-        user: user
-    });
 });
