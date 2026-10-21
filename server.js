@@ -12,6 +12,9 @@ const { rerankResults } = require("./services/rerankingService");
 const youtubeRoutes = require("./routes/youtubeRoutes");
 const { generateEmbedding } = require("./services/embeddingService");
 const { hybridSearch } = require("./services/hybridSearchService");
+const {
+    cohereRerankResults,
+} = require("./services/cohereRerankingService");
 const { storeEmbedding, searchSimilar } = require("./services/pineconeService");
 
 const express = require("express");
@@ -42,6 +45,32 @@ app.get("/api/protected", authMiddleware, (req, res) => {
         message: "You accessed a protected route!",
         userId: req.user
     });
+});
+
+app.post("/test-cohere-reranking", authMiddleware, async (req, res) => {
+    try {
+        const { query, results } = req.body;
+
+        const rerankedResults = await cohereRerankResults(
+            query,
+            results,
+            5
+        );
+
+        res.json({
+            success: true,
+            query,
+            count: rerankedResults.length,
+            results: rerankedResults,
+        });
+    } catch (error) {
+        console.error("Cohere reranking test error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
 });
 
 app.post("/test-reranking", authMiddleware, async (req, res) => {
