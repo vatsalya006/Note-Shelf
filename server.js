@@ -8,6 +8,7 @@ const authMiddleware = require("./middleware/authMiddleware");
 const noteRoutes = require("./routes/noteRoutes");
 const { keywordSearch } = require("./services/keywordSearchService");
 const pdfRoutes = require("./routes/pdfRoutes");
+const { rerankResults } = require("./services/rerankingService");
 const youtubeRoutes = require("./routes/youtubeRoutes");
 const { generateEmbedding } = require("./services/embeddingService");
 const { hybridSearch } = require("./services/hybridSearchService");
@@ -41,6 +42,32 @@ app.get("/api/protected", authMiddleware, (req, res) => {
         message: "You accessed a protected route!",
         userId: req.user
     });
+});
+
+app.post("/test-reranking", authMiddleware, async (req, res) => {
+    try {
+        const { query, results } = req.body;
+
+        const rerankedResults = await rerankResults(
+            query,
+            results,
+            5
+        );
+
+        res.json({
+            success: true,
+            query,
+            count: rerankedResults.length,
+            results: rerankedResults,
+        });
+    } catch (error) {
+        console.error("Reranking test error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Reranking failed",
+        });
+    }
 });
 
 app.get("/test-keyword-search", authMiddleware, async (req, res) => {
