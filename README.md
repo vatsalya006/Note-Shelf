@@ -1,64 +1,112 @@
-#  Note Shelf
+# Note Shelf
 
-AI-powered knowledge base with semantic search, RAG, and knowledge graph.
+**An AI-powered personal knowledge management system.**
 
-##  About
+Note Shelf helps users organize, search, and interact with their personal knowledge in one place. Save notes, upload PDFs, and collect YouTube learning materials in a centralized workspace powered by AI.
 
-Note Shelf is a full-stack web application that helps users organize and interact with their personal knowledge. Users can create notes, upload PDF documents, and save YouTube videos. The application processes this content and builds a searchable knowledge base powered by AI.
+It uses semantic search, hybrid retrieval, reranking, and Retrieval-Augmented Generation (RAG) to help users find information and chat with their saved knowledge.
 
-Instead of acting as a general-purpose AI assistant, Notefy is designed to answer questions using only the user's own saved content, providing a personalized and context-aware experience.
+## About
 
-##  Planned Features
+Note Shelf is a full-stack web application designed to make personal knowledge easier to manage and retrieve. Unlike general-purpose AI assistants, it focuses on the user's own knowledge, providing context-aware answers grounded in their saved materials.
 
--  Notes Management
--  PDF Upload & Text Extraction
--  YouTube Transcript Extraction
--  AI-Powered Summaries
--  Semantic Search
--  AI Chat with Personal Knowledge
--  Retrieval-Augmented Generation (RAG)
--  Interactive Knowledge Graph
--  User Authentication
--  Responsive User Interface
+## Features
 
-##  Tech Stack
+* **Notes Management** — Create and organize personal notes.
+* **PDF Upload** — Upload documents and extract their text.
+* **YouTube Integration** — Extract transcripts from YouTube videos.
+* **AI-Powered Summaries** — Generate summaries of saved content.
+* **Semantic Search** — Find information based on meaning, not just keywords.
+* **Hybrid Retrieval** — Combine semantic and keyword search for relevant results.
+* **AI Chat** — Ask questions and explore your personal knowledge.
+* **Source-Grounded Responses** — Retrieve relevant notes to support AI-generated answers.
+* **Knowledge Graph** — Visually explore relationships between pieces of knowledge.
+* **User Authentication** — Secure access to personal content.
+* **Responsive Interface** — Access your knowledge through a clean, user-friendly interface.
 
-### Frontend
-- HTML
-- CSS
-- JavaScript
-- React
-- Tailwind CSS
+## System Architecture
 
-### Backend
-- Node.js
-- Express.js
+```text
+                 USER
+                  |
+                  v
+          React Frontend
+                  |
+                  v
+         Node.js + Express
+                  |
+          +-------+--------+
+          |                |
+          v                v
+    MongoDB Database    Content Ingestion
+          |             (PDF / YouTube)
+          |                |
+          +-------+--------+
+                  |
+                  v
+           Text Chunking
+                  |
+                  v
+          Gemini Embeddings
+                  |
+                  v
+          Pinecone Vector DB
+                  |
+                  v
+             User Query
+                  |
+          +-------+--------+
+          |                |
+          v                v
+     Semantic Search   Keyword Search
+          |                |
+          +-------+--------+
+                  |
+                  v
+       Reciprocal Rank Fusion
+                 (RRF)
+                  |
+                  v
+          Cohere Reranking
+                  |
+                  v
+          Relevant Knowledge
+                  |
+                  v
+          +-------+-------+
+          |               |
+          v               v
+       AI Search       AI Chat
+                          |
+                          v
+                    Gemini Response
+                          |
+                          v
+                    Answer + Sources
+```
 
-### Database
-- MongoDB
+## Tech Stack
 
-### Authentication
-- JWT
+| Category                | Technologies                               |
+| ----------------------- | ------------------------------------------ |
+| Frontend                | React, JavaScript, HTML, CSS, Tailwind CSS |
+| Backend                 | Node.js, Express.js                        |
+| Database                | MongoDB                                    |
+| Authentication          | JSON Web Tokens (JWT)                      |
+| AI & Embeddings         | Google Gemini API                          |
+| Vector Search           | Pinecone                                   |
+| Retrieval & Reranking   | Hybrid Search, RRF, Cohere Rerank          |
+| Knowledge Visualization | D3.js                                      |
+| File Processing         | PDF Parser, YouTube Transcript API         |
 
-### AI & Machine Learning
-- Google Gemini API
-- Gemini Embeddings
-- Pinecone Vector Database
+## Goal
 
-### Other Tools
-- PDF Parser
-- YouTube Transcript API
-- D3.js
-- Cloudinary
+The goal of Note Shelf is to build an intelligent personal knowledge workspace that goes beyond traditional note-taking. By combining knowledge storage, semantic retrieval, AI-powered interaction, and knowledge visualization, Note Shelf aims to help users connect with and make better use of the information they collect.
 
-##  Goal
+## Project Status
 
-The primary goal of this project is to understand and implement the complete AI engineering workflow—from content ingestion and processing to semantic search, Retrieval-Augmented Generation (RAG), and interactive knowledge visualization—while building a production-ready full-stack application.
-
-##  Project Status
-
-Currently under development.
+**Under active development.**
 
 ---
 
-Made by Vatsalya Singh
+Made by **Vatsalya Singh**
