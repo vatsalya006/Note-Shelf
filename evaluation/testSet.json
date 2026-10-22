@@ -1,0 +1,82 @@
+[
+    {
+        "question": "What is the Knowledge Graph Upgraded Roadmap?",
+        "expectedNoteId": "6aca156a80e360d3a8c7d7c2"
+    },
+    {
+        "question": "What are the phases of the Note Shelf project?",
+        "expectedNoteId": "6aca156a80e360d3a8c7d7c2"
+    },
+    {
+        "question": "What is the goal of the Note Shelf project?",
+        "expectedNoteId": "6aca156a80e360d3a8c7d7c2"
+    },
+    {
+        "question": "What is CRC-32 used for in file integrity verification?",
+        "expectedNoteId": "6aca191020b6cefff70e9cde"
+    },
+    {
+        "question": "How is Dataword 1 generated from the original file?",
+        "expectedNoteId": "6aca191020b6cefff70e9cde"
+    },
+    {
+        "question": "How is the receiver-side codeword generated in CRC-32 verification?",
+        "expectedNoteId": "6aca191020b6cefff70e9cde"
+    },
+    {
+        "question": "When does CRC-32 verification display ACCEPT or REJECT?",
+        "expectedNoteId": "6aca191020b6cefff70e9cde"
+    },
+    {
+        "question": "What is the purpose of the TextBlob sentences property?",
+        "expectedNoteId": "6ac14521de1068614ea02e48"
+    },
+    {
+        "question": "How can TextBlob sentences be printed one by one?",
+        "expectedNoteId": "6ac14521de1068614ea02e48"
+    },
+    {
+        "question": "How can sentences longer than 280 characters be identified in TextBlob?",
+        "expectedNoteId": "6ac14521de1068614ea02e48"
+    },
+    {
+        "question": "How can TextBlob find sentences containing a particular word?",
+        "expectedNoteId": "6ac14521de1068614ea02e48"
+    },
+    {
+        "question": "What is the finance project building?",
+        "expectedNoteId": "6ad9f1d3ac9e9aec8825165e"
+    },
+    {
+        "question": "What is the purpose of the ledger in the payment gateway backend?",
+        "expectedNoteId": "6ad9f1d3ac9e9aec8825165e"
+    },
+    {
+        "question": "How does the payment gateway handle potentially fraudulent payments?",
+        "expectedNoteId": "6ad9f1d3ac9e9aec8825165e"
+    },
+    {
+        "question": "What is settlement in the payment gateway project?",
+        "expectedNoteId": "6ad9f1d3ac9e9aec8825165e"
+    },
+    {
+        "question": "What is a chargeback in the payment gateway project?",
+        "expectedNoteId": "6ad9f1d3ac9e9aec8825165e"
+    },
+    {
+        "question": "Why must the payment gateway prevent processing the same payment twice?",
+        "expectedNoteId": "6ad9f1d3ac9e9aec8825165e"
+    },
+    {
+        "question": "What is the Student Information Management System?",
+        "expectedNoteId": "6ac145faf80b45122262995d"
+    },
+    {
+        "question": "Which database concepts are used across the IMS capstone projects?",
+        "expectedNoteId": "6ac145faf80b45122262995d"
+    },
+    {
+        "question": "What are the 12 laboratory sessions used to build an IMS capstone product?",
+        "expectedNoteId": "6ac145faf80b45122262995d"
+    }
+]
