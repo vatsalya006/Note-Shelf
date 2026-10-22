@@ -99,6 +99,24 @@ Note Shelf is a full-stack web application designed to make personal knowledge e
 | Knowledge Visualization | D3.js                                      |
 | File Processing         | PDF Parser, YouTube Transcript API         |
 
+## Retrieval Evaluation
+
+Note Shelf evaluates retrieval quality using a test set of 20 questions with expected note IDs. The evaluation measures Hit@1, Hit@3, and Hit@5 to determine whether the expected note appears among the top retrieved results.
+
+### Results
+
+| Metric | Semantic-Only Search | Hybrid Search |
+| ------ | -------------------: | ------------: |
+| Hit@1  |                  30% |          100% |
+| Hit@3  |                  35% |          100% |
+| Hit@5  |                  35% |          100% |
+
+Hybrid retrieval combines semantic search, keyword search, Reciprocal Rank Fusion (RRF), and Cohere reranking.
+
+On the current evaluation set, hybrid retrieval achieved 100% Hit@1, Hit@3, and Hit@5, outperforming semantic-only search across all three metrics.
+
+These results represent performance on the current 20-question test set and may differ on unseen queries.
+
 ## Goal
 
 The goal of Note Shelf is to build an intelligent personal knowledge workspace that goes beyond traditional note-taking. By combining knowledge storage, semantic retrieval, AI-powered interaction, and knowledge visualization, Note Shelf aims to help users connect with and make better use of the information they collect.
