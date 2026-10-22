@@ -69,14 +69,14 @@
     },
     {
         "question": "What is the Student Information Management System?",
-        "expectedNoteId": "6ac145faf80b45122262995d"
+        "expectedNoteId": "6ac145fab80b45122262295d"
     },
     {
         "question": "Which database concepts are used across the IMS capstone projects?",
-        "expectedNoteId": "6ac145faf80b45122262995d"
+        "expectedNoteId": "6ac145fab80b45122262295d"
     },
     {
         "question": "What are the 12 laboratory sessions used to build an IMS capstone product?",
-        "expectedNoteId": "6ac145faf80b45122262995d"
+        "expectedNoteId": "6ac145fab80b45122262295d"
     }
 ]
