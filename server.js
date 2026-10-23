@@ -12,6 +12,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
+const graphRoutes = require("./routes/graphRoutes");
+
+app.use("/api/graph", graphRoutes);
 
 app.use(cors({
     origin: "http://localhost:5173"
