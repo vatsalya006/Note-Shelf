@@ -6784,3 +6784,299 @@ h3 {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.markdown-content {
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.markdown-content p {
+  margin: 0 0 12px;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  margin: 16px 0 8px;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 24px;
+  margin: 8px 0 12px;
+}
+
+.markdown-content pre {
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.markdown-content code {
+  font-family: monospace;
+}
+
+.markdown-content blockquote {
+  margin: 8px 0;
+  padding-left: 12px;
+  border-left: 3px solid currentColor;
+  opacity: 0.8;
+}
+
+/* AI Chat responsive layout */
+@media (max-width: 768px) {
+  .ai-chat-page {
+    padding: 16px;
+  }
+
+  .chat-layout {
+    min-height: calc(100vh - 160px);
+  }
+
+  .chat-main {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .chat-input-area {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .chat-input-area textarea,
+  .chat-input-area input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .user-message,
+  .ai-response {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-chat-page {
+    padding: 12px;
+  }
+
+  .ai-chat-page h1 {
+    font-size: 24px;
+  }
+
+  .chat-input-area {
+    padding: 12px;
+  }
+
+  .chat-input-area button {
+    padding: 10px 14px;
+  }
+}
+
+/* Welcome state */
+.chat-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chat-welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.chat-welcome-icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  font-size: 30px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  box-shadow: 0 0 35px rgba(139, 92, 246, 0.2);
+  margin-bottom: 24px;
+}
+
+.chat-welcome h2 {
+  margin: 0 0 12px;
+  font-size: clamp(22px, 3vw, 30px);
+  color: #f8fafc;
+}
+
+.chat-welcome p {
+  max-width: 520px;
+  margin: 0;
+  line-height: 1.7;
+  color: #94a3b8;
+}
+
+/* =====================================
+   AI CHAT — WIDER, BALANCED LAYOUT
+===================================== */
+
+/* Let the chat panel use the available width */
+.ai-chat-page .chat-layout {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* Main chat area fills the panel */
+.ai-chat-page .chat-main {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Welcome section uses more horizontal space */
+.ai-chat-page .chat-welcome {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  padding-left: 48px;
+  padding-right: 48px;
+}
+
+.ai-chat-page .chat-welcome p {
+  max-width: 700px;
+}
+
+/* Messages can use more of the available width */
+.ai-chat-page .user-message,
+.ai-chat-page .ai-response {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Widen the input area */
+.ai-chat-page .chat-input-area {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* Widen the input box itself */
+.ai-chat-page .chat-input-box {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* Input takes all available space */
+.ai-chat-page .chat-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ai-chat-page .chat-welcome {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .ai-chat-page .chat-input-area {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* =====================================
+   AI CHAT — FIX CONTENT WIDTH
+===================================== */
+
+/* Make the chat layout fill the entire panel */
+.ai-chat-page .chat-layout {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Main area uses full available width */
+.ai-chat-page .chat-main {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Welcome state fills available space */
+.ai-chat-page .chat-welcome {
+  width: 100%;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+/* Messages use the full available width */
+.ai-chat-page .user-message,
+.ai-chat-page .ai-response {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* AI response card expands */
+.ai-chat-page .ai-response-card {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* User message text expands */
+.ai-chat-page .user-message-text {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* Composer fills the chat width */
+.ai-chat-page .chat-input-area {
+  display: block;
+  width: 100%;
+  max-width: none;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+}
+
+.ai-chat-page .chat-input-box {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+.ai-chat-page .chat-input {
+  display: block;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* Keep content comfortably spaced on smaller screens */
+@media (max-width: 768px) {
+  .ai-chat-page .chat-input-area {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .ai-chat-page .chat-welcome {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
