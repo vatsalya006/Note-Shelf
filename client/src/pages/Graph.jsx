@@ -3,203 +3,65 @@ import KnowledgeGraph from "../components/KnowledgeGraph";
 
 function Graph() {
     const [search, setSearch] = useState("");
-    const [selectedNode, setSelectedNode] = useState("System Design");
-
-    const nodes = [
-        {
-            id: "system",
-            label: "System Design",
-            x: 390,
-            y: 320,
-            r: 48,
-            color: "#7c3cff",
-            textColor: "#ffffff",
-            main: true,
-        },
-        {
-            id: "dbms",
-            label: "DBMS",
-            x: 300,
-            y: 175,
-            r: 34,
-            color: "#16c8e8",
-            textColor: "#16c8e8",
-        },
-        {
-            id: "networking",
-            label: "Networking",
-            x: 560,
-            y: 215,
-            r: 36,
-            color: "#9b68ff",
-            textColor: "#a875ff",
-        },
-        {
-            id: "os",
-            label: "OS",
-            x: 260,
-            y: 455,
-            r: 34,
-            color: "#287cff",
-            textColor: "#5ca1ff",
-        },
-        {
-            id: "algorithms",
-            label: "Algorithms",
-            x: 455,
-            y: 520,
-            r: 34,
-            color: "#00d99a",
-            textColor: "#00d99a",
-        },
-        {
-            id: "scaling",
-            label: "Scaling",
-            x: 625,
-            y: 420,
-            r: 34,
-            color: "#ffb020",
-            textColor: "#ffb020",
-        },
-        {
-            id: "memory",
-            label: "Memory",
-            x: 185,
-            y: 300,
-            r: 34,
-            color: "#ff4d5e",
-            textColor: "#ff6674",
-        },
-        {
-            id: "tcp",
-            label: "TCP/IP",
-            x: 220,
-            y: 460,
-            r: 32,
-            color: "#9b68ff",
-            textColor: "#a875ff",
-        },
-    ];
-
-    const selected =
-        nodes.find((node) => node.label === selectedNode) ||
-        nodes[0];
-
-    const visibleNodes = nodes.filter((node) =>
-        node.label
-            .toLowerCase()
-            .includes(search.toLowerCase())
-    );
-
-    const isVisible = (label) =>
-        search.trim() === "" ||
-        visibleNodes.some((node) => node.label === label);
+    const [selectedNode, setSelectedNode] = useState(null);
 
     return (
         <section className="graph-section">
-
             {/* ================= HEADER ================= */}
 
             <div className="graph-header">
-
                 <div>
                     <h1>Knowledge Graph</h1>
-
                     <p>
                         Visualize connections between your notes,
                         concepts, and ideas.
                     </p>
                 </div>
-
-
                 <div className="graph-header-actions">
+                    <button
+                        className="ghost"
+                        type="button"
+                        onClick={() => {
+                            const graphElement = document.querySelector(".graph-work");
 
-                    <button className="ghost" type="button">
+                            if (graphElement?.requestFullscreen) {
+                                graphElement.requestFullscreen();
+                            }
+                        }}
+                    >
                         ⛶ Fullscreen
                     </button>
-
-                    <button className="ghost" type="button">
-                        ⇩ Export Graph
-                    </button>
-
                 </div>
-
             </div>
-
 
             {/* ================= GRAPH ================= */}
 
             <div className="graph-page">
-
-                {/* ===== GRAPH WORKSPACE ===== */}
-
                 <div className="graph-work">
+                    {/* ===== GRAPH CONTROLS ===== */}
 
-                    <div className="graph-toolbar">
-
+                    <div className="graph-controls">
                         <input
                             className="search"
+                            type="search"
                             placeholder="Search nodes..."
                             value={search}
-                            onChange={(event) =>
-                                setSearch(event.target.value)
-                            }
+                            onChange={(event) => setSearch(event.target.value)}
                         />
-
-
-                        <div>
-
-                            <button
-                                className="ghost active"
-                                type="button"
-                            >
-                                All
-                            </button>
-
-                            <button
-                                className="ghost"
-                                type="button"
-                            >
-                                Notes
-                            </button>
-
-                            <button
-                                className="ghost"
-                                type="button"
-                            >
-                                PDFs
-                            </button>
-
-                            <button
-                                className="ghost"
-                                type="button"
-                            >
-                                YouTube
-                            </button>
-
-                            <button
-                                className="ghost"
-                                type="button"
-                            >
-                                Find Path
-                            </button>
-
-                        </div>
-
                     </div>
 
-
-                    {/* ===== SVG CANVAS ===== */}
+                    {/* ===== REAL GRAPH CANVAS ===== */}
 
                     <div className="graph-canvas">
-                        <KnowledgeGraph />
+                        <KnowledgeGraph
+                            search={search}
+                            onSelectNode={setSelectedNode}
+                        />
                     </div>
-
 
                     {/* ===== LEGEND ===== */}
 
                     <div className="graph-legend">
-
                         <span>
                             <i className="strong-line"></i>
                             Strong connection
@@ -214,140 +76,48 @@ function Graph() {
                             <i className="weak-line"></i>
                             Weak connection
                         </span>
-
                     </div>
-
                 </div>
-
 
                 {/* ================= INSPECTOR ================= */}
 
                 <aside className="inspector">
+                    {selectedNode ? (
+                        <>
+                            <div className="node-icon">⌘</div>
 
-                    <div className="node-icon">
-                        ⌘
-                    </div>
+                            <h2>{selectedNode.title || selectedNode.label}</h2>
 
+                            <p className="sub">
+                                {selectedNode.type || "Graph node"}
+                            </p>
 
-                    <h2>
-                        {selected.label}
-                    </h2>
+                            <div className="side-section">
+                                <div className="section-title">
+                                    Node details
+                                </div>
 
-                    <p className="sub">
-                        Selected concept
-                    </p>
+                                <p>
+                                    {selectedNode.content ||
+                                        selectedNode.description ||
+                                        "Select a node to explore its details."}
+                                </p>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="inspector-empty">
+                            <div className="node-icon">⌘</div>
 
+                            <h2>Explore your knowledge</h2>
 
-                    <div className="side-section">
-
-                        <div className="section-title">
-                            Overview
+                            <p className="sub">
+                                Select a node in the graph to view its details
+                                and explore its connections.
+                            </p>
                         </div>
-
-                        <div className="metric-grid">
-
-                            <div className="metric">
-
-                                <b>12</b>
-
-                                <span>
-                                    Notes
-                                </span>
-
-                            </div>
-
-
-                            <div className="metric">
-
-                                <b>6</b>
-
-                                <span>
-                                    Connections
-                                </span>
-
-                            </div>
-
-
-                            <div className="metric">
-
-                                <b>92%</b>
-
-                                <span>
-                                    Health
-                                </span>
-
-                            </div>
-
-
-                            <div className="metric">
-
-                                <b>Today</b>
-
-                                <span>
-                                    Updated
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div className="side-section">
-
-                        <h3>
-                            Related Concepts
-                        </h3>
-
-                        <div className="chain">
-
-                            {nodes
-                                .filter(
-                                    (node) =>
-                                        node.label !== selected.label
-                                )
-                                .slice(0, 5)
-                                .map((node) => (
-
-                                    <span
-                                        key={node.id}
-                                        onClick={() =>
-                                            setSelectedNode(node.label)
-                                        }
-                                        style={{
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        {node.label}
-                                    </span>
-
-                                ))}
-
-                        </div>
-
-                    </div>
-
-
-                    <div className="side-section">
-
-                        <h3>
-                            About this concept
-                        </h3>
-
-                        <p>
-                            This concept is connected to related
-                            topics across your saved knowledge base.
-                            Explore the graph to discover stronger
-                            relationships.
-                        </p>
-
-                    </div>
-
+                    )}
                 </aside>
-
             </div>
-
         </section>
     );
 }

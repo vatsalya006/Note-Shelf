@@ -7080,3 +7080,15 @@ h3 {
     padding-right: 20px;
   }
 }
+
+/* Fullscreen graph workspace */
+.graph-work:fullscreen {
+  background: #08080f;
+  padding: 24px;
+  overflow: auto;
+}
+
+.graph-work:fullscreen .graph-canvas {
+  height: calc(100vh - 160px);
+  min-height: 500px;
+}
