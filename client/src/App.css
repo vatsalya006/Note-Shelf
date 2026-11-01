@@ -7093,3 +7093,98 @@ h3 {
   height: calc(100vh - 160px);
   min-height: 500px;
 }
+
+.chat-input-bottom {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* ================= CHAT MESSAGE ALIGNMENT ================= */
+
+/* User message: right side */
+.user-message {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  width: 100%;
+  margin: 16px 0;
+}
+
+/* User message bubble */
+.user-message-text {
+  max-width: 75%;
+  margin-left: auto;
+  text-align: left;
+  border-radius: 18px 18px 4px 18px;
+  overflow-wrap: anywhere;
+}
+
+/* AI response: left side */
+.ai-response {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  margin: 16px 0;
+}
+
+/* AI response card */
+.ai-response-card {
+  max-width: 85%;
+  margin-right: auto;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .user-message-text {
+    max-width: 90%;
+  }
+
+  .ai-response-card {
+    max-width: 90%;
+  }
+}
+
+/* Make each message row span the chat width */
+.chat-main {
+  width: 100%;
+}
+
+/* User message row aligned right */
+.chat-main .user-message {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+/* User bubble */
+.chat-main .user-message-text {
+  width: fit-content;
+  max-width: 75%;
+  margin-left: auto;
+}
+
+/* AI response row aligned left */
+.chat-main .ai-response {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+/* AI response bubble */
+.chat-main .ai-response-card {
+  width: fit-content;
+  max-width: 85%;
+  margin-right: auto;
+}
+
+@media (max-width: 768px) {
+
+  .chat-main .user-message-text,
+  .chat-main .ai-response-card {
+    max-width: 90%;
+  }
+}

@@ -41,6 +41,11 @@ function AIChat() {
             {
                 role: "user",
                 content: question
+            },
+            {
+                role: "assistant",
+                content: "",
+                sources: []
             }
         ]);
 
@@ -48,31 +53,105 @@ function AIChat() {
         setLoading(true);
 
         try {
-            const data = await apiRequest("/ai/chat", {
+            const token = localStorage.getItem("token");
+
+            const response = await fetch("http://localhost:3000/api/ai/chat", {
                 method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(token && {
+                        Authorization: `Bearer ${token}`,
+                    }),
+                },
                 body: JSON.stringify({ question })
             });
 
-            setMessages(prev => [
-                ...prev,
-                {
-                    role: "assistant",
-                    content: data.answer,
-                    sources: data.sources || []
+            if (!response.ok) {
+                throw new Error("Failed to start AI chat");
+            }
+
+            if (!response.body) {
+                throw new Error("Streaming response is not available");
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            let buffer = "";
+
+            while (true) {
+                const { value, done } = await reader.read();
+
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+
+                const events = buffer.split("\n\n");
+                buffer = events.pop() || "";
+
+                for (const event of events) {
+                    const line = event
+                        .split("\n")
+                        .find(line => line.startsWith("data: "));
+
+                    if (!line) continue;
+
+                    const payload = JSON.parse(line.slice(6));
+
+                    if (payload.type === "chunk") {
+                        setMessages(prev => {
+                            const updated = [...prev];
+                            const lastMessage = updated[updated.length - 1];
+
+                            if (lastMessage?.role === "assistant") {
+                                updated[updated.length - 1] = {
+                                    ...lastMessage,
+                                    content: lastMessage.content + payload.text
+                                };
+                            }
+
+                            return updated;
+                        });
+                    }
+
+                    if (payload.type === "sources") {
+                        setMessages(prev => {
+                            const updated = [...prev];
+                            const lastMessage = updated[updated.length - 1];
+
+                            if (lastMessage?.role === "assistant") {
+                                updated[updated.length - 1] = {
+                                    ...lastMessage,
+                                    sources: payload.sources || []
+                                };
+                            }
+
+                            return updated;
+                        });
+                    }
+
+                    if (payload.type === "error") {
+                        throw new Error(payload.message || "Streaming failed");
+                    }
                 }
-            ]);
+            }
 
         } catch (error) {
             console.error("AI Chat Error:", error);
 
-            setMessages(prev => [
-                ...prev,
-                {
-                    role: "assistant",
-                    content: "Sorry, something went wrong. Please try again.",
-                    sources: []
+            setMessages(prev => {
+                const updated = [...prev];
+                const lastMessage = updated[updated.length - 1];
+
+                if (lastMessage?.role === "assistant" && !lastMessage.content) {
+                    updated[updated.length - 1] = {
+                        ...lastMessage,
+                        content: "Sorry, something went wrong. Please try again."
+                    };
                 }
-            ]);
+
+                return updated;
+            });
         } finally {
             setLoading(false);
         }
@@ -141,7 +220,10 @@ function AIChat() {
                                 }
                             >
                                 <div className="markdown-content">
-                                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                    {msg.role === "assistant" && loading && !msg.content
+                                        ? "Thinking..."
+                                        : <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                    }
                                 </div>
 
                                 {msg.role === "assistant" && msg.sources?.length > 0 && (
@@ -166,16 +248,6 @@ function AIChat() {
                         </div>
                     ))}
 
-                    {loading && (
-                        <div className="ai-response">
-                            <div className="ai-avatar">✦</div>
-                            <div className="ai-response-card">
-                                Thinking...
-                            </div>
-                        </div>
-                    )}
-
-
                     {/* ================= INPUT ================= */}
 
                     <div className="chat-input-area">
@@ -199,32 +271,6 @@ function AIChat() {
 
 
                             <div className="chat-input-bottom">
-
-                                <div className="input-tools">
-
-                                    <button
-                                        type="button"
-                                        title="Attach"
-                                    >
-                                        ⌕
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        title="Image"
-                                    >
-                                        ▧
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        title="Voice"
-                                    >
-                                        ♩
-                                    </button>
-
-                                </div>
-
 
                                 <button
                                     className="primary send-chat"
