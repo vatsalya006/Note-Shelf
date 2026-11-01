@@ -6780,6 +6780,7 @@ h3 {
 /* Limit note preview text */
 .note-description {
   display: -webkit-box;
+  line-clamp: 6;
   -webkit-line-clamp: 6;
   -webkit-box-orient: vertical;
   overflow: hidden;
