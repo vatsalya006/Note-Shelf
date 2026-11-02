@@ -1,7 +1,10 @@
 const express = require("express");
+const crypto = require("crypto");
+
 const authMiddleware = require("../middleware/authMiddleware");
 const Note = require("../models/Note");
 const { fetchTranscript } = require("youtube-transcript");
+
 const {
     createYoutubeChunks
 } = require("../services/chunkingService");
@@ -26,31 +29,55 @@ router.post("/", authMiddleware, async (req, res) => {
             });
         }
 
-        const chunks = createYoutubeChunks(transcript);
-
         // Convert transcript segments into plain text
         const content = transcript
             .map(item => item.text)
-            .join(" ");
+            .join(" ")
+            .trim();
+
+        // Generate a hash from the transcript content
+        const contentHash = crypto
+            .createHash("sha256")
+            .update(content)
+            .digest("hex");
+
+        // Check whether this user already saved this transcript
+        const existingNote = await Note.findOne({
+            user: req.user,
+            type: "youtube",
+            contentHash
+        });
+
+        if (existingNote) {
+            return res.status(200).json({
+                message: "This YouTube transcript has already been saved",
+                duplicate: true,
+                note: existingNote
+            });
+        }
+
+        const chunks = createYoutubeChunks(transcript);
 
         const note = await Note.create({
             title,
             content,
+            contentHash,
             chunks,
             type: "youtube",
             youtubeUrl,
             user: req.user
         });
 
-        res.status(201).json({
+        return res.status(201).json({
             message: "YouTube video saved successfully",
+            duplicate: false,
             note
         });
 
     } catch (error) {
         console.error("YouTube transcript error:", error);
 
-        res.status(500).json({
+        return res.status(500).json({
             message: "Failed to fetch YouTube transcript"
         });
     }

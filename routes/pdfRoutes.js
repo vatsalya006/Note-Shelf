@@ -2,9 +2,12 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 const { PDFParse } = require("pdf-parse");
+
 const authMiddleware = require("../middleware/authMiddleware");
 const Note = require("../models/Note");
+
 const {
     splitIntoParagraphs,
     createPdfAwareChunks
@@ -57,20 +60,65 @@ router.post(
     authMiddleware,
     upload.single("pdf"),
     async (req, res) => {
+        let parser;
+
         try {
             if (!req.file) {
                 return res.status(400).json({
                     message: "Please upload a PDF file",
                 });
             }
-            const pdfBuffer = fs.readFileSync(req.file.path);
-            const parser = new PDFParse({ data: pdfBuffer });
-            const pdfData = await parser.getText();
 
+            // Read and extract PDF text
+            const pdfBuffer = fs.readFileSync(req.file.path);
+
+            parser = new PDFParse({
+                data: pdfBuffer
+            });
+
+            const pdfData = await parser.getText();
             const extractedText = pdfData.text.trim();
+
+            if (!extractedText) {
+                await parser.destroy();
+                fs.unlinkSync(req.file.path);
+
+                return res.status(400).json({
+                    message: "No readable text found in this PDF",
+                });
+            }
+
+            // Generate a hash from the extracted text
+            const contentHash = crypto
+                .createHash("sha256")
+                .update(extractedText)
+                .digest("hex");
+
+            // Check whether this user already uploaded this PDF content
+            const existingNote = await Note.findOne({
+                user: req.user,
+                type: "pdf",
+                contentHash,
+            });
+
+            if (existingNote) {
+                await parser.destroy();
+                parser = null;
+
+                // Remove the duplicate file that Multer just saved
+                fs.unlinkSync(req.file.path);
+
+                return res.status(200).json({
+                    message: "This PDF has already been uploaded",
+                    duplicate: true,
+                    note: existingNote,
+                });
+            }
+
+            // Split extracted text into paragraphs
             const paragraphs = splitIntoParagraphs(extractedText);
 
-            // Generate embedding for every paragraph
+            // Generate paragraph embeddings for semantic chunking
             const paragraphEmbeddings = await Promise.all(
                 paragraphs.map(paragraph => generateEmbedding(paragraph))
             );
@@ -82,14 +130,17 @@ router.post(
             ).map(chunk => ({
                 text: chunk,
                 startTime: null,
-                endTime: null
+                endTime: null,
             }));
-            await parser.destroy();
 
-            // Create a PDF knowledge item
+            await parser.destroy();
+            parser = null;
+
+            // Save the PDF knowledge item, including its content hash
             const note = await Note.create({
                 title: req.file.originalname,
                 content: extractedText,
+                contentHash,
                 chunks,
                 type: "pdf",
 
@@ -101,27 +152,37 @@ router.post(
                 user: req.user,
             });
 
+            // Generate and store embeddings for each final chunk
             for (let i = 0; i < chunks.length; i++) {
                 const chunkVector = await generateEmbedding(chunks[i].text);
 
                 await storeChunkEmbedding(
-                note._id,
-                req.user,
-                i,
-                chunkVector,
-                chunks[i]
-               );
+                    note._id,
+                    req.user,
+                    i,
+                    chunkVector,
+                    chunks[i]
+                );
             }
 
-            res.status(201).json({
+            return res.status(201).json({
                 message: "PDF uploaded successfully",
-
+                duplicate: false,
                 note,
             });
+
         } catch (error) {
             console.error("PDF upload error:", error);
 
-            res.status(500).json({
+            if (parser) {
+                try {
+                    await parser.destroy();
+                } catch (parserError) {
+                    console.error("PDF parser cleanup error:", parserError);
+                }
+            }
+
+            return res.status(500).json({
                 message: "Failed to upload PDF",
             });
         }

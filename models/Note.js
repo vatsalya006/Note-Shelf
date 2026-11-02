@@ -11,6 +11,10 @@ const noteSchema = new mongoose.Schema(
             type: String,
             default: ""
         },
+        contentHash: {
+            type: String,
+            default: null
+        },
         graphEmbedding: {
             type: [Number],
             default: undefined,
