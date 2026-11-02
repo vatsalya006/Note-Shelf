@@ -9,6 +9,9 @@ const INITIAL_DELAY_MS = 1000;
 
 const RETRYABLE_STATUS_CODES = [429, 500, 502, 503, 504];
 
+const embeddingCache = new Map();
+const MAX_CACHE_SIZE = 500;
+
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -83,12 +86,24 @@ async function generateAIResponseStream(prompt) {
 }
 
 async function generateEmbedding(text) {
+    const normalizedText = text.trim();
+
+    if (!normalizedText) {
+        throw new Error("Cannot generate embedding for empty text");
+    }
+
+    // Return cached embedding if available
+    if (embeddingCache.has(normalizedText)) {
+        console.log("Embedding cache hit");
+        return embeddingCache.get(normalizedText);
+    }
+
     try {
         const response = await retryWithBackoff(
             () =>
                 ai.models.embedContent({
                     model: "gemini-embedding-001",
-                    contents: text,
+                    contents: normalizedText,
                     config: {
                         taskType: "SEMANTIC_SIMILARITY",
                         outputDimensionality: 768,
@@ -97,7 +112,19 @@ async function generateEmbedding(text) {
             "Gemini embedding generation"
         );
 
-        return response.embeddings[0].values;
+        const embedding = response.embeddings[0].values;
+
+        // Keep cache size bounded
+        if (embeddingCache.size >= MAX_CACHE_SIZE) {
+            const oldestKey = embeddingCache.keys().next().value;
+            embeddingCache.delete(oldestKey);
+        }
+
+        embeddingCache.set(normalizedText, embedding);
+
+        console.log("Embedding cached");
+
+        return embedding;
     } catch (error) {
         throw new Error("Failed to generate embedding");
     }

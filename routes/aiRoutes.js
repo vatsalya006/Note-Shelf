@@ -6,6 +6,11 @@ const { retrieveRelevantNotes } = require("../services/retrievalService");
 const { cosineSimilarity } = require("../services/chunkingService");
 
 const {
+    getCachedSummary,
+    cacheSummary
+} = require("../services/aiCacheService");
+
+const {
     generateAIResponse,
     generateAIResponseStream,
     generateEmbedding
@@ -74,7 +79,6 @@ router.get("/threshold-test", authMiddleware, async (req, res) => {
     }
 });
 
-
 // ================= AI SUMMARY =================
 
 router.post(
@@ -100,6 +104,27 @@ router.post(
                 });
             }
 
+            // Use the saved hash, or calculate one for older notes
+            const contentHash = note.contentHash || require("crypto")
+                .createHash("sha256")
+                .update(note.content)
+                .digest("hex");
+
+            // Check cache first
+            const cachedSummary = getCachedSummary(
+                req.user,
+                note._id,
+                contentHash
+            );
+
+            if (cachedSummary) {
+                return res.json({
+                    message: "Summary retrieved from cache",
+                    cached: true,
+                    summary: cachedSummary
+                });
+            }
+
             const prompt = `
 You are an AI assistant inside a personal knowledge management app called Note Shelf.
 
@@ -121,15 +146,24 @@ ${note.content}
 
             const summary = await generateAIResponse(prompt);
 
-            res.json({
+            // Store summary in cache
+            cacheSummary(
+                req.user,
+                note._id,
+                contentHash,
+                summary
+            );
+
+            return res.json({
                 message: "Summary generated successfully",
+                cached: false,
                 summary
             });
 
         } catch (error) {
             console.error("AI summary error:", error);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Failed to generate summary"
             });
         }
