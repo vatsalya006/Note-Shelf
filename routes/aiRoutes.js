@@ -11,6 +11,11 @@ const {
 } = require("../services/aiCacheService");
 
 const {
+    getCachedChat,
+    cacheChat
+} = require("../services/aiChatCacheService");
+
+const {
     generateAIResponse,
     generateAIResponseStream,
     generateEmbedding
@@ -243,6 +248,42 @@ router.post(
                     sources: []
                 });
             }
+            // Check whether this question and context already have a cached answer
+const cachedAnswer = getCachedChat(
+    req.user,
+    question,
+    sources
+);
+
+if (cachedAnswer) {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    // Send cached answer as a single streaming chunk
+    res.write(`data: ${JSON.stringify({
+        type: "chunk",
+        text: cachedAnswer
+    })}\n\n`);
+
+    // Send sources
+    res.write(`data: ${JSON.stringify({
+        type: "sources",
+        sources: sources.map(source => ({
+            noteId: source.noteId,
+            title: source.title,
+            content: source.content
+        }))
+    })}\n\n`);
+
+    // Signal completion
+    res.write(`data: ${JSON.stringify({
+        type: "done"
+    })}\n\n`);
+
+    return res.end();
+}
 
             // Step 2: Prepare context from retrieved notes
             const context = sources.map((source, index) => {
@@ -284,19 +325,33 @@ Answer:
             res.setHeader("Connection", "keep-alive");
             res.flushHeaders();
 
-            // Step 5: Start Gemini streaming
-            const stream = await generateAIResponseStream(prompt);
+            // Step 5: Start Gemini streaming and collect the answer
+const stream = await generateAIResponseStream(prompt);
 
-            for await (const chunk of stream) {
-                const text = chunk.text;
+let fullAnswer = "";
 
-                if (text) {
-                    res.write(`data: ${JSON.stringify({
-                        type: "chunk",
-                        text
-                    })}\n\n`);
-                }
-            }
+for await (const chunk of stream) {
+    const text = chunk.text;
+
+    if (text) {
+        fullAnswer += text;
+
+        res.write(`data: ${JSON.stringify({
+            type: "chunk",
+            text
+        })}\n\n`);
+    }
+}
+
+// Cache the completed answer
+if (fullAnswer.trim()) {
+    cacheChat(
+        req.user,
+        question,
+        sources,
+        fullAnswer
+    );
+}
 
             // Step 6: Send source notes after the answer
             res.write(`data: ${JSON.stringify({
