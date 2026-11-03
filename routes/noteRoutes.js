@@ -2,6 +2,7 @@ const express = require("express");
 const Note = require("../models/Note");
 const crypto = require("crypto");
 const authMiddleware = require("../middleware/authMiddleware");
+const logger = require("../services/logger");
 
 const router = express.Router();
 
@@ -26,10 +27,15 @@ router.post("/", authMiddleware, async (req, res) => {
             note
         });
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to create note"
-        });
-    }
+    logger.error("Note creation failed", {
+        error: error.message,
+        userId: req.user
+    });
+
+    res.status(500).json({
+        message: "Failed to create note"
+    });
+}
 });
 
 router.get("/", authMiddleware, async (req, res) => {
@@ -40,10 +46,15 @@ router.get("/", authMiddleware, async (req, res) => {
             notes
         });
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to fetch notes"
-        });
-    }
+    logger.error("Fetching notes failed", {
+        error: error.message,
+        userId: req.user
+    });
+
+    res.status(500).json({
+        message: "Failed to fetch notes"
+    });
+}
 });
 router.get("/:id", authMiddleware, async (req, res) => {
     try {
@@ -62,12 +73,16 @@ router.get("/:id", authMiddleware, async (req, res) => {
             note
         });
     } catch (error) {
-        console.error("Failed to fetch note:", error);
+    logger.error("Fetching note by ID failed", {
+        error: error.message,
+        userId: req.user,
+        noteId: req.params.id
+    });
 
-        res.status(500).json({
-            message: "Failed to fetch note"
-        });
-    }
+    res.status(500).json({
+        message: "Failed to fetch note"
+    });
+}
 });
 
 router.put("/:id", authMiddleware, async (req, res) => {
@@ -111,10 +126,16 @@ const note = await Note.findOneAndUpdate(
             note
         });
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to update note"
-        });
-    }
+    logger.error("Note update failed", {
+        error: error.message,
+        userId: req.user,
+        noteId: req.params.id
+    });
+
+    res.status(500).json({
+        message: "Failed to update note"
+    });
+}
 });
 
 router.delete("/:id", authMiddleware, async (req, res) => {
@@ -134,10 +155,16 @@ router.delete("/:id", authMiddleware, async (req, res) => {
             message: "Note deleted successfully"
         });
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to delete note"
-        });
-    }
+    logger.error("Note deletion failed", {
+        error: error.message,
+        userId: req.user,
+        noteId: req.params.id
+    });
+
+    res.status(500).json({
+        message: "Failed to delete note"
+    });
+}
 });
 
 module.exports = router;

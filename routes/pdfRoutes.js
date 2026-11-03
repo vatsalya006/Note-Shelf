@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 const { PDFParse } = require("pdf-parse");
+const logger = require("../services/logger");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const Note = require("../models/Note");
@@ -172,13 +173,21 @@ router.post(
             });
 
         } catch (error) {
-            console.error("PDF upload error:", error);
+            logger.error("PDF upload failed", {
+    error: error.message,
+    userId: req.user,
+    fileName: req.file?.originalname
+});
 
             if (parser) {
                 try {
                     await parser.destroy();
                 } catch (parserError) {
-                    console.error("PDF parser cleanup error:", parserError);
+                    logger.error("PDF parser cleanup failed", {
+    error: parserError.message,
+    userId: req.user,
+    fileName: req.file?.originalname
+});
                 }
             }
 

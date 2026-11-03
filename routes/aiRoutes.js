@@ -1,6 +1,7 @@
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
 const aiRateLimit = require("../middleware/aiRateLimit");
+const logger = require("../services/logger");
 
 const { retrieveRelevantNotes } = require("../services/retrievalService");
 const { cosineSimilarity } = require("../services/chunkingService");
@@ -166,7 +167,11 @@ ${note.content}
             });
 
         } catch (error) {
-            console.error("AI summary error:", error);
+            logger.error("AI summary failed", {
+    error: error.message,
+    userId: req.user,
+    noteId: req.params.id
+});
 
             return res.status(500).json({
                 message: "Failed to generate summary"
@@ -206,7 +211,10 @@ router.get(
             });
 
         } catch (error) {
-            console.error("AI search error:", error);
+            logger.error("AI search failed", {
+                error: error.message,
+                userId: req.user
+            });
 
             res.status(500).json({
                 message: "AI search failed"
@@ -371,7 +379,10 @@ if (fullAnswer.trim()) {
             res.end();
 
         } catch (error) {
-            console.error("AI chat streaming error:", error);
+            logger.error("AI chat streaming failed", {
+    error: error.message,
+    userId: req.user
+});
 
             if (!res.headersSent) {
                 res.status(500).json({

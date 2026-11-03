@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const authMiddleware = require("../middleware/authMiddleware");
 const Note = require("../models/Note");
 const { fetchTranscript } = require("youtube-transcript");
+const logger = require("../services/logger");
 
 const {
     createYoutubeChunks
@@ -75,7 +76,11 @@ router.post("/", authMiddleware, async (req, res) => {
         });
 
     } catch (error) {
-        console.error("YouTube transcript error:", error);
+        logger.error("YouTube transcript processing failed", {
+    error: error.message,
+    userId: req.user,
+    youtubeUrl: req.body.youtubeUrl
+});
 
         return res.status(500).json({
             message: "Failed to fetch YouTube transcript"

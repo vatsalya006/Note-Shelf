@@ -6,6 +6,7 @@ const authMiddleware = require("./middleware/authMiddleware");
 const noteRoutes = require("./routes/noteRoutes");
 const pdfRoutes = require("./routes/pdfRoutes");
 const youtubeRoutes = require("./routes/youtubeRoutes");
+const logger = require("./services/logger");
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -13,7 +14,6 @@ const cors = require("cors");
 
 const app = express();
 const graphRoutes = require("./routes/graphRoutes");
-
 
 app.use(cors({
     origin: "http://localhost:5173",
@@ -64,6 +64,11 @@ app.post("/api/test", (req, res) => {
         data: req.body
     });
 });
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    logger.info("Note Shelf backend started", {
+        port: PORT,
+        environment: process.env.NODE_ENV || "development"
+    });
 });
