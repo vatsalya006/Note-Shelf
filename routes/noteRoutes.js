@@ -1,5 +1,6 @@
 const express = require("express");
 const Note = require("../models/Note");
+const crypto = require("crypto");
 const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -79,19 +80,25 @@ router.put("/:id", authMiddleware, async (req, res) => {
             });
         }
 
-        const note = await Note.findOneAndUpdate(
-            {
-                _id: req.params.id,
-                user: req.user
-            },
-            {
-                title,
-                content
-            },
-            {
-                new: true
-            }
-        );
+        const contentHash = crypto
+    .createHash("sha256")
+    .update(content)
+    .digest("hex");
+
+const note = await Note.findOneAndUpdate(
+    {
+        _id: req.params.id,
+        user: req.user
+    },
+    {
+        title,
+        content,
+        contentHash
+    },
+    {
+        new: true
+    }
+);
 
         if (!note) {
             return res.status(404).json({

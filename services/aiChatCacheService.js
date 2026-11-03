@@ -48,6 +48,20 @@ function cacheChat(userId, question, sources, answer) {
     });
 }
 
+function cleanupExpiredChats() {
+    const now = Date.now();
+
+    for (const [key, cached] of chatCache.entries()) {
+        if (now > cached.expiresAt) {
+            chatCache.delete(key);
+        }
+    }
+}
+
+// Clean expired chat entries every 5 minutes
+setInterval(cleanupExpiredChats, 5 * 60 * 1000);
+
+
 module.exports = {
     getCachedChat,
     cacheChat
