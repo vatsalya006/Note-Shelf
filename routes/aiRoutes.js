@@ -2,6 +2,7 @@ const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
 const aiRateLimit = require("../middleware/aiRateLimit");
 const logger = require("../services/logger");
+const { checkAndRecordUsage } = require("../services/aiUsageService");
 
 const { retrieveRelevantNotes } = require("../services/retrievalService");
 const { cosineSimilarity } = require("../services/chunkingService");
@@ -109,6 +110,18 @@ router.post(
                     message: "This note has no content to summarize"
                 });
             }
+            // Check and reserve the user's daily AI Summary request
+const usage = await checkAndRecordUsage(req.user, "summary");
+
+if (!usage.allowed) {
+    return res.status(429).json({
+        message: "Daily AI Summary limit reached",
+        feature: "summary",
+        limit: usage.limit,
+        currentUsage: usage.currentUsage,
+        remaining: 0
+    });
+}
 
             // Use the saved hash, or calculate one for older notes
             const contentHash = note.contentHash || require("crypto")
@@ -196,6 +209,18 @@ router.get(
                     message: "Please provide a search query"
                 });
             }
+            // Check and reserve the user's daily AI Search request
+const usage = await checkAndRecordUsage(req.user, "search");
+
+if (!usage.allowed) {
+    return res.status(429).json({
+        message: "Daily AI Search limit reached",
+        feature: "search",
+        limit: usage.limit,
+        currentUsage: usage.currentUsage,
+        remaining: 0
+    });
+}
 
             const results = await retrieveRelevantNotes(
                 q,
@@ -293,16 +318,24 @@ if (cachedAnswer) {
     return res.end();
 }
 
-            // Step 2: Prepare context from retrieved notes
-            const context = sources.map((source, index) => {
-                return `
+// Step 2: Prepare context from retrieved notes
+const MAX_SOURCE_CHARS = 2500;
+
+const context = sources.map((source, index) => {
+    const content = source.content || "";
+    const trimmedContent =
+        content.length > MAX_SOURCE_CHARS
+            ? content.slice(0, MAX_SOURCE_CHARS) + "\n[Content truncated]"
+            : content;
+
+    return `
 Source ${index + 1}
 Note ID: ${source.noteId}
 Title: ${source.title}
 Content:
-${source.content}
+${trimmedContent}
 `;
-            }).join("\n");
+}).join("\n");
 
             // Step 3: Prepare grounded prompt
             const prompt = `
@@ -339,7 +372,7 @@ const stream = await generateAIResponseStream(prompt);
 let fullAnswer = "";
 
 for await (const chunk of stream) {
-    const text = chunk.text;
+    const text = chunk.choices?.[0]?.delta?.content;
 
     if (text) {
         fullAnswer += text;

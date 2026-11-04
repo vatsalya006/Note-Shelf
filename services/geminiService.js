@@ -1,49 +1,70 @@
 const { GoogleGenAI } = require("@google/genai");
+const Groq = require("groq-sdk");
+const logger = require("./logger");
 
-const ai = new GoogleGenAI({
+// Gemini remains responsible for embeddings
+const gemini = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY,
 });
 
-const MAX_RETRIES = 3;
-const INITIAL_DELAY_MS = 1000;
+// Groq handles text generation and streaming
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY,
+});
 
-const RETRYABLE_STATUS_CODES = [429, 500, 502, 503, 504];
+const GROQ_MODEL = "openai/gpt-oss-120b";
 
 const embeddingCache = new Map();
 const MAX_CACHE_SIZE = 500;
+
+function logGroqUsage(feature, usage = null) {
+    logger.info("Groq API usage", {
+        feature,
+        model: GROQ_MODEL,
+        inputTokens: usage?.prompt_tokens ?? 0,
+        outputTokens: usage?.completion_tokens ?? 0,
+        totalTokens: usage?.total_tokens ?? 0,
+    });
+}
 
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function getStatusCode(error) {
-    return error.status || error.code || error.response?.status;
+    return Number(error.status || error.code || error.response?.status);
 }
 
 function isRetryableError(error) {
-    const statusCode = getStatusCode(error);
-
-    return RETRYABLE_STATUS_CODES.includes(Number(statusCode));
+    return [429, 500, 502, 503, 504].includes(getStatusCode(error));
 }
 
 async function retryWithBackoff(operation, operationName) {
-    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const maxRetries = 2;
+    const initialDelayMs = 1000;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
             return await operation();
         } catch (error) {
-            const isLastAttempt = attempt === MAX_RETRIES;
+            const isLastAttempt = attempt === maxRetries;
 
             if (isLastAttempt || !isRetryableError(error)) {
-                console.error(`${operationName} failed:`, error);
+                logger.error(`${operationName} failed`, {
+                    statusCode: getStatusCode(error),
+                    error: error.message,
+                });
                 throw error;
             }
 
-            const delay = INITIAL_DELAY_MS * Math.pow(2, attempt);
+            const delay = initialDelayMs * Math.pow(2, attempt);
 
-            console.warn(
-                `${operationName} failed with status ${getStatusCode(error)}. ` +
-                `Retrying in ${delay}ms... (attempt ${attempt + 1}/${MAX_RETRIES})`
-            );
+            logger.warn(`${operationName} failed; retrying`, {
+                statusCode: getStatusCode(error),
+                retryDelayMs: delay,
+                attempt: attempt + 1,
+                maxRetries,
+            });
 
             await sleep(delay);
         }
@@ -54,15 +75,28 @@ async function generateAIResponse(prompt) {
     try {
         const response = await retryWithBackoff(
             () =>
-                ai.models.generateContent({
-                    model: "gemini-3.8-flash",
-                    contents: prompt,
+                groq.chat.completions.create({
+                    model: GROQ_MODEL,
+                    messages: [
+                        {
+                            role: "user",
+                            content: prompt,
+                        },
+                    ],
+                    temperature: 0.3,
                 }),
-            "Gemini text generation"
+            "Groq text generation"
         );
 
-        return response.text;
+        logGroqUsage("text_generation", response.usage);
+
+        return response.choices[0]?.message?.content || "";
     } catch (error) {
+        logger.error("Groq text generation error", {
+            statusCode: getStatusCode(error),
+            error: error.message,
+        });
+
         throw new Error("Failed to generate AI response");
     }
 }
@@ -71,16 +105,27 @@ async function generateAIResponseStream(prompt) {
     try {
         const stream = await retryWithBackoff(
             () =>
-                ai.models.generateContentStream({
-                    model: "gemini-3.8-flash",
-                    contents: prompt,
+                groq.chat.completions.create({
+                    model: GROQ_MODEL,
+                    messages: [
+                        {
+                            role: "user",
+                            content: prompt,
+                        },
+                    ],
+                    temperature: 0.3,
+                    stream: true,
                 }),
-            "Gemini streaming text generation"
+            "Groq streaming text generation"
         );
 
         return stream;
     } catch (error) {
-        console.error("Gemini streaming error:", error);
+        logger.error("Groq streaming error", {
+            statusCode: getStatusCode(error),
+            error: error.message,
+        });
+
         throw new Error("Failed to generate streaming AI response");
     }
 }
@@ -92,16 +137,15 @@ async function generateEmbedding(text) {
         throw new Error("Cannot generate embedding for empty text");
     }
 
-    // Return cached embedding if available
     if (embeddingCache.has(normalizedText)) {
-        console.log("Embedding cache hit");
+        logger.info("Embedding cache hit");
         return embeddingCache.get(normalizedText);
     }
 
     try {
         const response = await retryWithBackoff(
             () =>
-                ai.models.embedContent({
+                gemini.models.embedContent({
                     model: "gemini-embedding-001",
                     contents: normalizedText,
                     config: {
@@ -114,7 +158,6 @@ async function generateEmbedding(text) {
 
         const embedding = response.embeddings[0].values;
 
-        // Keep cache size bounded
         if (embeddingCache.size >= MAX_CACHE_SIZE) {
             const oldestKey = embeddingCache.keys().next().value;
             embeddingCache.delete(oldestKey);
@@ -122,10 +165,15 @@ async function generateEmbedding(text) {
 
         embeddingCache.set(normalizedText, embedding);
 
-        console.log("Embedding cached");
+        logger.info("Embedding cached");
 
         return embedding;
     } catch (error) {
+        logger.error("Gemini embedding error", {
+            statusCode: getStatusCode(error),
+            error: error.message,
+        });
+
         throw new Error("Failed to generate embedding");
     }
 }
