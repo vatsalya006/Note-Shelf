@@ -35,6 +35,21 @@ const graphEdgeSchema = new mongoose.Schema(
             ],
             required: true,
         },
+
+        reason: {
+            type: String,
+            default: "",
+        },
+
+        sourceContentHash: {
+            type: String,
+            default: "",
+        },
+
+        targetContentHash: {
+            type: String,
+            default: "",
+        },
     },
     {
         timestamps: true,

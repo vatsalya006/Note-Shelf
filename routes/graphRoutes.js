@@ -75,44 +75,65 @@ for (let i = 0; i < notes.length; i++) {
         const target = notes[j]._id;
 
         // Check MongoDB cache
-        let cachedEdge = await GraphEdge.findOne({
+        // Get current note content hashes
+const sourceHash = notes[i].contentHash || "";
+const targetHash = notes[j].contentHash || "";
+
+// Check MongoDB cache
+let cachedEdge = await GraphEdge.findOne({
+    user: req.user,
+    source,
+    target,
+}).lean();
+
+// Check whether either note has changed
+const needsClassification =
+    !cachedEdge ||
+    cachedEdge.sourceContentHash !== sourceHash ||
+    cachedEdge.targetContentHash !== targetHash;
+
+if (needsClassification) {
+    const classification = await classifyRelationship(
+        notes[i],
+        notes[j]
+    );
+
+    cachedEdge = await GraphEdge.findOneAndUpdate(
+        {
             user: req.user,
             source,
             target,
-        }).lean();
-
-        if (!cachedEdge) {
-            const relationship = await classifyRelationship(
-                notes[i],
-                notes[j]
-            );
-
-            cachedEdge = await GraphEdge.findOneAndUpdate(
-                {
-                    user: req.user,
-                    source,
-                    target,
-                },
-                {
-                    $set: {
-                        similarity,
-                        relationship,
-                    },
-                },
-                {
-                    upsert: true,
-                    returnDocument: "after",
-                    setDefaultsOnInsert: true,
-                }
-            ).lean();
+        },
+        {
+            $set: {
+                similarity,
+                relationship: classification.relationship,
+                reason: classification.reason,
+                sourceContentHash: sourceHash,
+                targetContentHash: targetHash,
+            },
+        },
+        {
+            upsert: true,
+            returnDocument: "after",
+            setDefaultsOnInsert: true,
         }
+    ).lean();
+} else {
+    // Keep similarity score updated without calling Groq
+    await GraphEdge.updateOne(
+        { _id: cachedEdge._id },
+        { $set: { similarity } }
+    );
+}
 
-        edges.push({
-            source: source.toString(),
-            target: target.toString(),
-            similarity: Number(similarity.toFixed(3)),
-            relationship: cachedEdge.relationship,
-        });
+edges.push({
+    source: source.toString(),
+    target: target.toString(),
+    similarity: Number(similarity.toFixed(3)),
+    relationship: cachedEdge.relationship,
+    reason: cachedEdge.reason,
+});
     }
 }
         res.status(200).json({ nodes, edges });

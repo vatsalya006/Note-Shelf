@@ -3,7 +3,6 @@ import KnowledgeGraph from "../components/KnowledgeGraph";
 import { apiRequest } from "../api";
 
 function Graph() {
-    const [search, setSearch] = useState("");
     const [selectedNode, setSelectedNode] = useState(null);
     const [graphData, setGraphData] = useState({
         nodes: [],
@@ -29,7 +28,7 @@ function Graph() {
         };
     }, []);
 
-    // Fetch actual graph data for the inspector
+    // Fetch graph data
     useEffect(() => {
         async function loadGraphData() {
             try {
@@ -47,7 +46,7 @@ function Graph() {
         loadGraphData();
     }, []);
 
-    // Find nodes directly connected to the selected node
+    // Find connected nodes
     const getConnectedNodes = () => {
         if (!selectedNode) return [];
 
@@ -93,12 +92,11 @@ function Graph() {
 
     return (
         <section className="graph-section">
-            {/* ================= HEADER ================= */}
 
+            {/* HEADER */}
             <div className="graph-header">
                 <div>
                     <h1>Knowledge Graph</h1>
-
                     <p>
                         Visualize connections between your notes,
                         concepts, and ideas.
@@ -123,67 +121,46 @@ function Graph() {
                 </div>
             </div>
 
-            {/* ================= GRAPH ================= */}
-
+            {/* GRAPH WORKSPACE */}
             <div className="graph-page">
-                {/* ===== GRAPH WORKSPACE ===== */}
 
                 <div className="graph-work">
-                    <div className="graph-controls">
-                        <input
-                            className="search"
-                            type="search"
-                            placeholder="Search nodes..."
-                            value={search}
-                            onChange={(event) =>
-                                setSearch(event.target.value)
-                            }
-                        />
-                    </div>
 
-                    {/* ===== REAL GRAPH CANVAS ===== */}
-
+                    {/* GRAPH CANVAS */}
                     <div className="graph-canvas">
                         <KnowledgeGraph />
                     </div>
 
-                    {/* ===== LEGEND ===== */}
-
-                    <div className="graph-legend">
-                        <span>
-                            <i className="strong-line"></i>
-                            Strong connection
-                        </span>
-
-                        <span>
-                            <i className="medium-line"></i>
-                            Medium connection
-                        </span>
-
-                        <span>
-                            <i className="weak-line"></i>
-                            Weak connection
-                        </span>
-                    </div>
                 </div>
 
-                {/* ================= INSPECTOR ================= */}
-
+                {/* NODE INSPECTOR */}
                 <aside className="inspector">
+
                     {!selectedNode ? (
                         <div className="inspector-empty">
-                            <div className="node-icon">⌘</div>
+
+                            <div className="node-icon">✦</div>
 
                             <h2>Explore your knowledge</h2>
 
                             <p className="sub">
-                                Select a node in the graph to view its
-                                details and explore its connections.
+                                Select a node in the graph to explore
+                                its details and discover connected notes.
                             </p>
+
+                            <div className="inspector-hint">
+                                <span>↗</span>
+                                Click any node to get started
+                            </div>
+
                         </div>
                     ) : (
                         <>
-                            <div className="node-icon">⌘</div>
+                            <div className="node-icon">✦</div>
+
+                            <span className="inspector-label">
+                                SELECTED NOTE
+                            </span>
 
                             <h2>
                                 {selectedNode.title ||
@@ -195,8 +172,7 @@ function Graph() {
                                 {selectedNode.type || "Knowledge node"}
                             </p>
 
-                            {/* ===== NODE DETAILS ===== */}
-
+                            {/* NODE DETAILS */}
                             <div className="side-section">
                                 <div className="section-title">
                                     Node details
@@ -209,10 +185,16 @@ function Graph() {
                                 </p>
                             </div>
 
-                            {/* ===== CONNECTED NOTES ===== */}
-
+                            {/* CONNECTED NOTES */}
                             <div className="side-section">
-                                <h3>Connected Notes</h3>
+
+                                <div className="connected-heading">
+                                    <h3>Connected Notes</h3>
+
+                                    <span className="connection-count">
+                                        {connectedNodes.length}
+                                    </span>
+                                </div>
 
                                 {connectedNodes.length > 0 ? (
                                     <div className="chain">
@@ -224,9 +206,19 @@ function Graph() {
                                                     setSelectedNode(node)
                                                 }
                                             >
-                                                {node.title ||
-                                                    node.label ||
-                                                    "Untitled node"}
+                                                <span className="connected-dot">
+                                                    ●
+                                                </span>
+
+                                                <span>
+                                                    {node.title ||
+                                                        node.label ||
+                                                        "Untitled node"}
+                                                </span>
+
+                                                <span className="connected-arrow">
+                                                    →
+                                                </span>
                                             </button>
                                         ))}
                                     </div>
@@ -237,6 +229,13 @@ function Graph() {
                                     </p>
                                 )}
                             </div>
+
+                            <button
+                                className="inspector-close"
+                                onClick={() => setSelectedNode(null)}
+                            >
+                                Clear selection
+                            </button>
                         </>
                     )}
                 </aside>

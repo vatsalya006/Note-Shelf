@@ -2,7 +2,9 @@ const { generateAIResponse } = require("./geminiService");
 
 async function classifyRelationship(noteA, noteB) {
     const prompt = `
-You are classifying relationships between two notes.
+You are an expert knowledge graph relationship classifier.
+
+Analyze the relationship between these two notes.
 
 NOTE A:
 Title: ${noteA.title}
@@ -13,13 +15,22 @@ Title: ${noteB.title}
 Content: ${(noteB.content || "").slice(0, 1500)}
 
 Choose exactly one relationship:
+
 - builds-on: Note B extends or develops an idea from Note A.
 - contradicts: The notes express conflicting claims.
-- same-topic: The notes discuss the same subject.
-- references: One note mentions or refers to the other.
+- same-topic: Both notes discuss the same subject.
+- references: One note explicitly mentions or refers to the other.
 
-Return only valid JSON in this format:
-{"relationship":"same-topic"}
+Also explain WHY these notes are connected.
+
+Return ONLY valid JSON in this exact format:
+
+{
+    "relationship": "builds-on",
+    "reason": "Note B expands on the concept introduced in Note A."
+}
+
+Keep the reason concise, specific, and based only on the provided notes.
 `;
 
     const response = await generateAIResponse(prompt);
@@ -39,14 +50,25 @@ Return only valid JSON in this format:
             "references",
         ];
 
-        if (allowed.includes(parsed.relationship)) {
-            return parsed.relationship;
+        if (
+            allowed.includes(parsed.relationship) &&
+            typeof parsed.reason === "string" &&
+            parsed.reason.trim()
+        ) {
+            return {
+                relationship: parsed.relationship,
+                reason: parsed.reason.trim(),
+            };
         }
 
-        return "same-topic";
+        throw new Error("Invalid relationship response");
     } catch (error) {
         console.error("Relationship classification error:", error);
-        return "same-topic";
+
+        return {
+            relationship: "same-topic",
+            reason: "These notes have similar content or topics.",
+        };
     }
 }
 
