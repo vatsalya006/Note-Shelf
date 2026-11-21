@@ -13,90 +13,103 @@ import Graph from "./pages/Graph";
 import AIChat from "./pages/AIChat";
 import Register from "./pages/Register";
 import NewNote from "./pages/NewNote";
+import { ThemeProvider } from "./context/ThemeContext";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public pages */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Public pages */}
+          {/* Application pages */}
+          <Route
+            path="/dashboard"
+            element={
+              <AppLayout>
+                <Dashboard />
+              </AppLayout>
+            }
+          />
 
-        <Route path="/" element={<Home />} />
+          <Route
+            path="/notes"
+            element={
+              <AppLayout>
+                <Notes />
+              </AppLayout>
+            }
+          />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          <Route
+            path="/notes/new"
+            element={
+              <AppLayout>
+                <NewNote />
+              </AppLayout>
+            }
+          />
 
+          <Route
+            path="/upload"
+            element={
+              <AppLayout>
+                <Upload />
+              </AppLayout>
+            }
+          />
 
-        {/* Application pages */}
+          <Route
+            path="/notes/:id"
+            element={
+              <AppLayout>
+                <NoteDetail />
+              </AppLayout>
+            }
+          />
 
-        <Route
-          path="/dashboard"
-          element={
-            <AppLayout>
-              <Dashboard />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/ai-search"
+            element={
+              <AppLayout>
+                <AISearch />
+              </AppLayout>
+            }
+          />
 
-        <Route
-          path="/notes"
-          element={
-            <AppLayout>
-              <Notes />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/notes/new"
-          element={
-            <AppLayout>
-              <NewNote />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/upload"
-          element={
-            <AppLayout>
-              <Upload />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/notes/:id"
-          element={
-            <AppLayout>
-              <NoteDetail />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/ai-search"
-          element={
-            <AppLayout>
-              <AISearch />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/graph"
-          element={
-            <AppLayout>
-              <Graph />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/ai-chat"
-          element={
-            <AppLayout>
-              <AIChat />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/graph"
+            element={
+              <AppLayout>
+                <Graph />
+              </AppLayout>
+            }
+          />
 
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/ai-chat"
+            element={
+              <AppLayout>
+                <AIChat />
+              </AppLayout>
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              <AppLayout>
+                <Settings />
+              </AppLayout>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

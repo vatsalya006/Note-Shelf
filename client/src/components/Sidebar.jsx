@@ -40,6 +40,14 @@ function Sidebar() {
         },
     ];
 
+    let storedUser = {};
+    try {
+        storedUser = JSON.parse(localStorage.getItem("user")) || {};
+    } catch {
+        storedUser = {};
+    }
+    const displayName = storedUser.name || "Rahul";
+
     const handleNavigation = (path) => {
         navigate(path);
     };
@@ -57,14 +65,12 @@ function Sidebar() {
                 </div>
             </div>
 
-
             {/* Workspace */}
             <div className="nav-label">
                 Workspace
             </div>
 
             <nav className="nav">
-
                 {workspaceItems.map((item) => (
                     <button
                         key={item.path}
@@ -78,9 +84,7 @@ function Sidebar() {
                         {item.label}
                     </button>
                 ))}
-
             </nav>
-
 
             {/* Intelligence */}
             <div className="nav-label">
@@ -88,7 +92,6 @@ function Sidebar() {
             </div>
 
             <nav className="nav">
-
                 {intelligenceItems.map((item) => (
                     <button
                         key={item.path}
@@ -102,26 +105,26 @@ function Sidebar() {
                         {item.label}
                     </button>
                 ))}
-
             </nav>
-
 
             {/* Profile */}
             <div className="profile">
 
                 <div className="avatar">
-                    R
+                    {displayName.charAt(0).toUpperCase()}
                 </div>
 
                 <div>
-                    <strong>Rahul</strong>
+                    <strong>{displayName}</strong>
                     <span>Free plan</span>
                 </div>
 
                 <button
-                    className="gear"
+                    className={`gear ${location.pathname === "/settings" ? "active" : ""}`}
                     type="button"
                     aria-label="Settings"
+                    title="Settings"
+                    onClick={() => handleNavigation("/settings")}
                 >
                     ⚙
                 </button>

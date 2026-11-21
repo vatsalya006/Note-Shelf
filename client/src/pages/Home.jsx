@@ -50,6 +50,37 @@ function Home() {
 
             <main className="landing-hero">
 
+                <div className="hero-eyebrow">for people who save everything</div>
+
+                <h1>
+                    Where notes and AI{" "}
+                    <span className="highlight-pill">connect</span>
+                </h1>
+
+                <p>
+                    Store notes, PDFs, and YouTube lectures in one intelligent workspace.
+                    <br />
+                    Turn scattered information into AI-powered summaries,
+                    semantic search, and contextual conversations.
+                </p>
+
+
+                <div className="hero-actions">
+
+                    <button
+                        className="primary"
+                        onClick={() => navigate("/login")}
+                    >
+                        Get Started
+                    </button>
+
+                    <button className="ghost">
+                        View demo
+                    </button>
+
+                </div>
+
+
                 <div className="brain-row" aria-hidden="true">
 
                     <div className="brain-node">
@@ -86,35 +117,6 @@ function Home() {
                         </div>
                         <span>Search</span>
                     </div>
-
-                </div>
-
-
-                <h1>
-                    Where notes and AI{" "}
-                    <span className="highlight-pill">connect</span>
-                </h1>
-
-                <p>
-                    Store notes, PDFs, and YouTube lectures in one intelligent workspace.
-                    <br />
-                    Turn scattered information into AI-powered summaries,
-                    semantic search, and contextual conversations.
-                </p>
-
-
-                <div className="hero-actions">
-
-                    <button
-                        className="primary"
-                        onClick={() => navigate("/login")}
-                    >
-                        Get Started
-                    </button>
-
-                    <button className="ghost">
-                        View demo
-                    </button>
 
                 </div>
 
@@ -240,7 +242,6 @@ function Home() {
 
                             <button
                                 className="primary"
-                                style={{ width: "100%", marginTop: "24px" }}
                                 onClick={() => navigate("/login")}
                             >
                                 Open dashboard
@@ -410,6 +411,33 @@ function Home() {
 
                 </div>
 
+            </section>
+
+
+            {/* ================= ABOUT + FOOTER ================= */}
+            <section className="landing-about" id="about">
+                <div className="about-card">
+                    <p>
+                        Note Shelf keeps your notes, PDFs and YouTube lectures in one
+                        place, and lets AI answer only from what you have saved.
+                    </p>
+                    <span>the idea behind Note Shelf</span>
+                </div>
+
+                <div className="landing-cta">
+                    <h2>Start your shelf today</h2>
+                    <button
+                        className="primary"
+                        onClick={() => navigate("/login")}
+                    >
+                        Get Started
+                    </button>
+                </div>
+
+                <footer className="landing-footer">
+                    <span>© 2026 Note Shelf</span>
+                    <span>Notes, PDFs and videos in one place</span>
+                </footer>
             </section>
 
         </section>

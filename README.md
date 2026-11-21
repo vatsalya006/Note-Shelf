@@ -128,3 +128,21 @@ The goal of Note Shelf is to build an intelligent personal knowledge workspace t
 ---
 
 Made by **Vatsalya Singh**
+
+
+## Running locally
+
+1. Install dependencies for both parts (one time):
+   ```bash
+   npm run install:all
+   ```
+2. Copy `.env.example` to `.env` (project root, next to `server.js`) and fill in your keys.
+3. Start the backend (port 3000) in one terminal:
+   ```bash
+   npm run dev
+   ```
+4. Start the frontend (port 5173) in a second terminal:
+   ```bash
+   npm run client
+   ```
+5. Open http://localhost:5173

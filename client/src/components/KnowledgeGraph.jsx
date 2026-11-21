@@ -11,10 +11,10 @@ export default function KnowledgeGraph() {
 
     // Relationship colors accessible throughout the component
     const relationshipColors = {
-        "builds-on": "#3b82f6",
-        contradicts: "#ef4444",
-        "same-topic": "#22c55e",
-        references: "#a855f7",
+        "builds-on": "#3f6f8f",
+        contradicts: "#b4372b",
+        "same-topic": "#4d6a48",
+        references: "#8a5a9a",
     };
 
     useEffect(() => {
@@ -116,12 +116,12 @@ export default function KnowledgeGraph() {
                     .attr("r", 9)
                     .attr("fill", (d) =>
                         d.type === "pdf"
-                            ? "#f59e0b"
+                            ? "#c0522b"
                             : d.type === "youtube"
-                                ? "#ef4444"
-                                : "#3b82f6"
+                                ? "#b08a2a"
+                                : "#4d6a48"
                     )
-                    .attr("stroke", "#ffffff")
+                    .attr("stroke", "#faf7f0")
                     .attr("stroke-width", 1.5);
 
                 // Node labels
@@ -205,7 +205,7 @@ export default function KnowledgeGraph() {
             {loading && <p>Loading Knowledge Graph...</p>}
 
             {error && (
-                <p style={{ color: "#ef4444" }}>
+                <p style={{ color: "#b4372b" }}>
                     {error}
                 </p>
             )}
@@ -223,19 +223,19 @@ export default function KnowledgeGraph() {
                 <span>🟠 PDFs</span>
                 <span>🔴 YouTube</span>
 
-                <span style={{ color: "#22c55e" }}>
+                <span style={{ color: "#4d6a48" }}>
                     — Same topic
                 </span>
 
-                <span style={{ color: "#3b82f6" }}>
+                <span style={{ color: "#3f6f8f" }}>
                     — Builds on
                 </span>
 
-                <span style={{ color: "#ef4444" }}>
+                <span style={{ color: "#b4372b" }}>
                     — Contradicts
                 </span>
 
-                <span style={{ color: "#a855f7" }}>
+                <span style={{ color: "#8a5a9a" }}>
                     — References
                 </span>
             </div>
@@ -246,8 +246,8 @@ export default function KnowledgeGraph() {
                 style={{
                     width: "100%",
                     minHeight: 450,
-                    border: "1px solid #334155",
-                    borderRadius: 12,
+                    border: "1px solid var(--line)",
+                    borderRadius: 3,
                 }}
             />
 
@@ -257,9 +257,9 @@ export default function KnowledgeGraph() {
                     style={{
                         marginTop: 16,
                         padding: 20,
-                        border: "1px solid #334155",
-                        borderRadius: 12,
-                        background: "var(--card-bg, transparent)",
+                        border: "1px solid var(--line)",
+                        borderRadius: 3,
+                        background: "var(--panel)",
                     }}
                 >
                     <div
